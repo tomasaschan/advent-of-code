@@ -5,8 +5,9 @@
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
-        "IO.fs",
-        "Boilerplate.fs"
+        "Types.fs",
+        "Helpers.fs",
+        "Runner.fs"
       ]
     }
   },

@@ -6,6 +6,7 @@
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
+        "Solution-b.fs",
         "Solution-a.fs",
         "Program.fs"
       ]
