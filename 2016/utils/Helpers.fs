@@ -12,7 +12,7 @@ module Helpers =
         input.ToCharArray()
         |> List.ofArray
 
-    let join (s : char list) = System.String.Concat(Array.ofList(s))
+    let join (s : char seq) = System.String.Concat(Array.ofSeq(s))
 
     let parseInt s =
         match System.Int32.TryParse(s) with

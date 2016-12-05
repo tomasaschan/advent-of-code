@@ -7,7 +7,7 @@ open Dec1.Solutions.B
 [<EntryPoint>]
 let main argv =
 
-    let solutions = solve argv (solve1 solveA) (solve1 solveB)
+    let solutions = solve1 argv solveA solveB
     
     printfn "%s" solutions
     0 // return an integer exit code

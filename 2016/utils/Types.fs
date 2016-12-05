@@ -4,6 +4,13 @@ module Types =
 
     type Direction = North | South | East | West
 
+    let dirToStr d =
+        match d with
+        | North -> "N"
+        | South -> "S"
+        | East -> "E"
+        | West -> "W"
+
     type Turn = Left | Right
 
     let turn d t =

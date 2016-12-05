@@ -16,42 +16,75 @@ module Domain =
         prev : State option
     }
 
-    let follow s i =
-        let s' = { s with facing = turn s.facing i.turn }
-        let s'' = { s' with here = move i.steps s'.facing s'.here }
-        { s'' with prev = Some s }
-        
-    let rec crosses pos state =
-        match state with
-        | None -> false
-        | Some s -> pos = s.here || crosses pos s.prev
-
-    let rec isCrossing state =
-        match state with
-        | None -> false
-        | Some s -> crosses s.here s.prev
-
-    let rec hasCrossing state =
-        match state with
-        | None -> false
-        | Some s -> isCrossing state || hasCrossing s.prev
-
-    let isFirstCrossing state =
-        isCrossing (Some state) && not (hasCrossing state.prev)
-
-    let rec firstcrossing state =
-        match state with
-        | None -> None
-        | Some s -> if isFirstCrossing s
-                    then state
-                    else firstcrossing s.prev
-
     let distance s = (abs s.x) + (abs s.y)
+
+    module Tracing =
+
+        let move1 s =
+            {
+                facing = s.facing;
+                here = move 1 s.facing s.here;
+                prev = Some s
+            }
+
+        let rec move steps s =
+            match steps with
+            | 0 -> s
+            | more -> move (more - 1) (move1 s)
+        
+        let follow s i =
+            let s' = { s with facing = turn s.facing i.turn }
+            { move i.steps s' with prev = Some s }
+
+    module Crossing =
+        let rec crosses pos state =
+            match state with
+            | None -> false
+            | Some s -> pos = s.here || crosses pos s.prev
+
+        let rec isCrossing state =
+            match state with
+            | None -> false
+            | Some s -> crosses s.here s.prev
+
+
+        let rec firstCrossing state =
+            match state.prev with
+            | None -> None
+            | Some s ->
+                match firstCrossing s with
+                | None ->
+                    if isCrossing (Some s)
+                    then Some state
+                    else None
+                | Some s -> Some s
+
+
+    // let rec hasCrossing state =
+    //     match state with
+    //     | None -> false
+    //     | Some s -> isCrossing state || hasCrossing s.prev
+
+    // let isFirstCrossing state =
+    //     isCrossing (Some state) && not (hasCrossing state.prev)
+
+    // let rec firstcrossing state =
+    //     match state with
+    //     | None -> None
+    //     | Some s -> if isFirstCrossing s
+    //                 then state
+    //                 else firstcrossing s.prev
 
 module B =
     open Domain
+    open Domain.Tracing
+    open Domain.Crossing
 
-    let initialState = { here = { x = 0; y = 0 }; facing = North; prev = None }
+    let initialState = {
+        here = { x = 0; y = 0 };
+        facing = North;
+        prev = None
+    }
 
     let parse input =
         let data = 
@@ -72,8 +105,8 @@ module B =
             |> List.choose id
             |> List.fold follow initialState
 
-        let x = firstcrossing (Some finalState)
+        let x = firstCrossing finalState
 
         match x with
         | Some state -> sprintf "%d" (distance state.here)
-        | None -> "no crossing found"        
+        | None -> "no crossing found"
