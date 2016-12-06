@@ -9,36 +9,23 @@ module Domain =
         id : int
         checksum : string
     }
+    let getId room = room.id
 
-    let countLetters str =
-        str
-        |> asChars
-        |> List.filter (fun c -> c <> '-')
-        |> List.groupBy id
-        |> List.map (fun (c,l) -> c, List.length l)
+    let countLetters = asChars >> List.filter (fun c -> c <> '-') >> List.groupBy id >> List.map (fun (c,l) -> c, List.length l)
         
-    let checksum room =
-        room.name
-        |> countLetters
-        |> List.sortBy (fun (char, count) -> (-count, char))
-        |> List.take 5
-        |> List.map (fun (char, count) -> char)
-        |> join
+    let checksum = countLetters >> List.sortBy (fun (char, count) -> (-count, char)) >> List.take 5 >> List.map (fun (char, count) -> char) >> join
         
-    let isValid room = room.checksum = checksum room
+    let isValid room = room.checksum = checksum room.name
 
-    let decrypt i c =
+    let decryptChar i c =
         match c with
         | '-' -> ' '
         | c' -> char ((((int c' + i) - int 'a') % (int 'z' - int 'a' + 1)) + (int 'a'))
 
-    let decrypted room =
-        let realName =
-            room.name
-            |> asChars
-            |> List.map (decrypt room.id)
-            |> join
+    let decrypt i = asChars >> List.map (decryptChar i) >> join
 
+    let decrypted room =
+        let realName = decrypt room.id room.name
         { room with name = realName }
 
 
@@ -72,15 +59,7 @@ module Solvers =
         open Domain
         open Parser
 
-        let solve input =
-            let result =
-                input
-                |> List.choose parse
-                |> List.filter isValid
-                |> List.sumBy (fun room -> room.id)
-
-            sprintf "%A" result
-
+        let solve = List.choose parse >> List.filter isValid >> List.sumBy getId >> sprintf "%d"
 
     module B =
 
@@ -89,13 +68,6 @@ module Solvers =
         open AoC.Utils.Helpers
         open System
 
-        let solve input =
-            let matching =
-                input
-                |> List.choose parse
-                |> List.map decrypted
-                |> List.filter (fun room -> (room.name).Contains "north") 
+        let containsNorth room = room.name.Contains "north"
 
-            match matching with
-            | [] -> "no such room found"
-            | room::_ -> sprintf "%d" room.id
+        let solve = List.choose parse >> List.map decrypted >> List.filter containsNorth >> List.head >> getId >> sprintf "%d"

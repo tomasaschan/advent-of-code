@@ -59,9 +59,7 @@ module Domain =
             | Up -> stepUp key
             | Down -> stepDown key
 
-        let follow keys start =
-            keys
-            |> List.fold step start
+        let follow = List.fold step
 
     module B =
 
@@ -141,9 +139,7 @@ module Domain =
             | Up -> stepUp key
             | Down -> stepDown key
 
-        let follow keys start =
-            keys
-            |> List.fold step start
+        let follow = List.fold step
 
 module Parser =
 
@@ -157,12 +153,7 @@ module Parser =
         | 'U' -> Some Up
         | 'D' -> Some Down
         | _ -> None
-
-    let asSteps str =
-        str
-        |> asChars
-        |> List.map asMove
-        |> List.choose id
+    let asSteps = asChars >> List.choose asMove
 
     module A =
         open Domain.A
@@ -216,19 +207,10 @@ module Solver =
                 | s::_ -> s
             
             match moves with
-            | [] -> code |> List.rev
-            | ms::rest -> followAll ((follow ms start)::code) rest 
+            | [] -> List.rev code
+            | ms::rest -> followAll ((follow start ms)::code) rest
 
-
-        let solve input =
-            let answer = 
-                input
-                |> List.map asSteps
-                |> followAll []
-
-            answer
-            |> List.map asString
-            |> String.concat ""
+        let solve = List.map asSteps >> followAll [] >> List.map asString >> String.concat ""
 
     module B =
 
@@ -242,16 +224,7 @@ module Solver =
                 | s::_ -> s
             
             match moves with
-            | [] -> code |> List.rev
-            | ms::rest -> followAll ((follow ms start)::code) rest 
+            | [] -> List.rev code
+            | ms::rest -> followAll ((follow start ms)::code) rest
 
-
-        let solve input =
-            let answer = 
-                input
-                |> List.map asSteps
-                |> followAll []
-
-            answer
-            |> List.map asString
-            |> String.concat ""
+        let solve = List.map asSteps >> followAll [] >> List.map asString >> String.concat ""

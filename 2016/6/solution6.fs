@@ -25,22 +25,11 @@ module Solver =
         open AoC.Utils.Helpers
         open Domain
 
-        let solve input =
-
-            input
-            |> List.collect classify
-            |> List.groupBy pos
-            |> List.map (chars >> mostPopular)
-            |> join
+        let solve = List.collect classify >> List.groupBy pos >> List.map (chars >> mostPopular) >> join
 
     module B =
 
         open AoC.Utils.Helpers
         open Domain
 
-        let solve input =
-            input
-            |> List.collect classify
-            |> List.groupBy pos
-            |> List.map (chars >> leastPopular)
-            |> join
+        let solve = List.collect classify >> List.groupBy pos >> List.map (chars >> leastPopular) >> join

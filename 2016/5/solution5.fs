@@ -51,10 +51,12 @@ module Solver =
     open AoC.Utils.Helpers
 
     module A =
+        
+        open Domain.A
 
         let solve input =
             Seq.initInfinite id
-                |> Seq.choose (A.key input)
+                |> Seq.choose (key input)
                 |> Seq.take 8
                 |> join
 

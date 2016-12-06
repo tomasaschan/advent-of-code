@@ -4,10 +4,8 @@ namespace AoC.Dec3
 
 module Domain = 
 
-    type Triangle = { a : int; b : int; c : int }
-
     let isValid triangle =
-        let a, b, c = triangle.a, triangle.b, triangle.c
+        let a, b, c = triangle
         a + b > c && a + c > b && a + c > b
 
 module Parse =
@@ -15,23 +13,15 @@ module Parse =
     open AoC.Utils.Helpers
     open Domain
 
-    let toTriangle ints =
+    let private _triangle ints =
         match ints with
-        | [a;b;c] -> Some { a = a; b = b; c = c }
+        | [a;b;c] -> Some(a, b, c)
         | _ -> None
 
-    let ints input =
-        input
-            |> split " "
-            |> List.filter (fun s -> s.Length > 0)
-            |> List.map parseInt
-            |> List.choose id
-        
-    
-    let triangle input =
-        input
-        |> List.sort
-        |> toTriangle
+    let removeEmpty = List.filter (fun (s : string) -> s.Length > 0)
+    let parseInts = List.choose parseInt
+    let ints = (split " ") >> removeEmpty >> parseInts
+    let triangle = List.sort >> _triangle
 
 module Solvers =
 
@@ -39,15 +29,7 @@ module Solvers =
 
         open Domain
 
-        let solve input =
-            let answer = 
-                input
-                |> List.map (Parse.ints >> Parse.triangle)
-                |> List.choose id
-                |> List.filter isValid
-                |> List.length
-
-            sprintf "%d" answer
+        let solve = (List.choose (Parse.ints >> Parse.triangle)) >> List.filter isValid >> List.length >> sprintf "%d"
 
     module B =
 
@@ -58,14 +40,4 @@ module Solvers =
             | [[a;b;c];[d;e;f];[g;h;i]] -> [[a;d;g];[b;e;h];[c;f;i]]
             | other -> other
 
-        let solve input =
-            let answer =
-                input
-                |> List.map Parse.ints
-                |> List.chunkBySize 3
-                |> List.collect pivot
-                |> List.choose Parse.triangle
-                |> List.filter isValid
-                |> List.length
-
-            sprintf "%d" answer
+        let solve = List.map Parse.ints >> List.chunkBySize 3 >> List.collect pivot >> List.choose Parse.triangle >> List.filter isValid >> List.length >> sprintf "%d"
