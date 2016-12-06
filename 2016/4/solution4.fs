@@ -75,8 +75,7 @@ module Solvers =
         let solve input =
             let result =
                 input
-                |> List.map parse
-                |> List.choose id
+                |> List.choose parse
                 |> List.filter isValid
                 |> List.sumBy (fun room -> room.id)
 
@@ -93,8 +92,7 @@ module Solvers =
         let solve input =
             let matching =
                 input
-                |> List.map parse
-                |> List.choose id
+                |> List.choose parse
                 |> List.map decrypted
                 |> List.filter (fun room -> (room.name).Contains "north") 
 

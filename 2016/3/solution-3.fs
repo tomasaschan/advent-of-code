@@ -63,10 +63,8 @@ module Solvers =
                 input
                 |> List.map Parse.ints
                 |> List.chunkBySize 3
-                |> List.map pivot
-                |> List.collect id
-                |> List.map Parse.triangle
-                |> List.choose id
+                |> List.collect pivot
+                |> List.choose Parse.triangle
                 |> List.filter isValid
                 |> List.length
 

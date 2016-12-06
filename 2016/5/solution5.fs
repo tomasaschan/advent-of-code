@@ -54,8 +54,7 @@ module Solver =
 
         let solve input =
             Seq.initInfinite id
-                |> Seq.map (A.key input)
-                |> Seq.choose id
+                |> Seq.choose (A.key input)
                 |> Seq.take 8
                 |> join
 
@@ -65,8 +64,7 @@ module Solver =
 
         let solve input =
             Seq.initInfinite id
-                |> Seq.map (key input)
-                |> Seq.choose id
+                |> Seq.choose (key input)
                 |> Seq.distinctBy position
                 |> Seq.take 8
                 |> Seq.sortBy position
