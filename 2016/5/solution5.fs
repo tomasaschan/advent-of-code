@@ -20,6 +20,31 @@ module Domain =
             | '0'::'0'::'0'::'0'::'0'::k::_ -> Some k
             | _ -> None
 
+    module B =
+
+        let private validIndex i = 0 <= i && i < 8
+
+        let private charToInt = sprintf "%c" >> parseInt
+
+        let keyChar chars =
+            match chars with
+            | '0'::'0'::'0'::'0'::'0'::p::c::_ -> Some (c, charToInt p)
+            | _ -> None
+
+        let validKeyChar kc =
+            match kc with
+            | Some (c, Some p) ->
+                if validIndex p
+                then Some (c, p)
+                else None
+            | _ -> None
+
+        let key str = (doorId str >> hash >> asChars >> keyChar) >> validKeyChar
+            
+        let character = fst
+        let position = snd
+
+
 module Solver =
 
     open Domain
@@ -28,8 +53,22 @@ module Solver =
     module A =
 
         let solve input =
-            Seq.unfold (fun state -> Some(state, state+1)) 0
+            Seq.initInfinite id
                 |> Seq.map (A.key input)
                 |> Seq.choose id
                 |> Seq.take 8
+                |> join
+
+    module B =
+
+        open Domain.B
+
+        let solve input =
+            Seq.initInfinite id
+                |> Seq.map (key input)
+                |> Seq.choose id
+                |> Seq.distinctBy position
+                |> Seq.take 8
+                |> Seq.sortBy position
+                |> Seq.map character
                 |> join

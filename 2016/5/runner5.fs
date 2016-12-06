@@ -6,7 +6,7 @@ open AoC.Dec5.Solver
 [<EntryPoint>]
 let main argv = 
 
-    let solution = solve1 argv A.solve todo
+    let solution = solve1 argv A.solve B.solve
 
     printfn "%s" solution
 
