@@ -31,21 +31,13 @@ module Domain =
 
 module Parser =
 
-    open System.Text.RegularExpressions
     open AoC.Utils.Helpers
     open Domain
-
-    let (|ParseRegex|_|) regex str =
-        let m = Regex(regex).Match(str)
-        if m.Success
-        then Some (List.tail [ for x in m.Groups -> x.Value ])
-        else None
-
 
     let parse str =
         let parsed =
             match str with
-            | ParseRegex @"([a-z\-]+)-(\d+)\[([a-z]+)\]" [name; id; chk] -> Some (name, parseInt id, chk)
+            | RegexMatch @"([a-z\-]+)-(\d+)\[([a-z]+)\]" [name; id; chk] -> Some (name, parseInt id, chk)
             | _ -> None
 
         match parsed with

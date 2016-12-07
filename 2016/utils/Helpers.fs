@@ -4,6 +4,8 @@ open System
 
 module Helpers =
     
+    open System.Text.RegularExpressions
+
     let split (separator : string) (input : string) = 
         input.Split([| separator |], StringSplitOptions.None)
         |> List.ofArray
@@ -31,3 +33,15 @@ module Helpers =
             then true
             else k acc
         ) false
+
+    let (|RegexMatch|_|) regex str =
+        let m = Regex(regex).Match(str)
+        if m.Success
+        then Some (List.tail [ for x in m.Groups -> x.Value ])
+        else None
+
+    let (|RegexMatches|_|) regex str =
+        let ms = Regex(regex).Matches(str)
+        if ms.Count > 0
+        then Some [for m in ms -> m.Value]
+        else None
