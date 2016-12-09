@@ -37,6 +37,8 @@ module Domain =
         | ColumnRotation { col = c; steps = s } -> _rotateCol c s screen
         | TurnOn { rows = r; cols = c } -> _turnOn r c screen
 
+    let total = List.concat >> List.map (fun b -> if b then 1 else 0) >> List.sum
+
 module Parse =
 
     open AoC.Utils.Helpers
@@ -62,13 +64,30 @@ module Parse =
 
     let private _display b = if b then "#" else "."
 
+
+module Show =
+
+    open Domain
+    open AoC.Utils.Helpers
+
+    let pixel p = if p then "#" else "."
+
+    let concat separator a b = sprintf "%s%s%s" a separator b
+
+    let screen = Seq.mapReduce (Seq.mapReduce pixel (concat "")) (concat "\n")
+
 module Solver =
 
     open Domain
 
+    let initScreen = List.init Domain.height (fun r -> List.init Domain.width (fun c -> false))
+
+    let finalScreen = List.choose Parse.instruction >> List.fold update initScreen
+
     module A =
 
-        let total = List.concat >> List.map (fun b -> if b then 1 else 0) >> List.sum
+        let solve = finalScreen >> total >> sprintf "%d"
 
-        let initScreen = List.init Domain.height (fun r -> List.init Domain.width (fun c -> false))
-        let solve = List.choose Parse.instruction >> List.fold update initScreen >> total >> sprintf "%d"
+    module B =
+
+        let solve = finalScreen >> Show.screen >> sprintf "\n%s\n"
