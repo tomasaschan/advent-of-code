@@ -11,7 +11,7 @@ module Domain =
         | [a;b;c;d] -> a = d && b = c && a <> b
         | _ -> false
 
-    let hasAbba = asChars >> windowed 4 >> Seq.exists isAbba
+    let hasAbba = String.asChars >> windowed 4 >> Seq.exists isAbba
 
     let supportsTLS (hnets, others) = Seq.exists hasAbba others && not (Seq.exists hasAbba hnets)
 
@@ -20,7 +20,7 @@ module Domain =
         | [a;b;c] -> a = c && a <> b
         | _ -> false
 
-    let abas = asChars >> windowed 3 >> Seq.filter isAba
+    let abas = String.asChars >> windowed 3 >> Seq.filter isAba
 
     let corresponds aba bab =
         match aba, bab with
@@ -32,7 +32,7 @@ module Domain =
         | [a;b;c] when corresponds aba [a;b;c] -> true
         | _ -> false
 
-    let hasBab aba = asChars >> windowed 3 >> Seq.exists (isBab aba)
+    let hasBab aba = String.asChars >> windowed 3 >> Seq.exists (isBab aba)
 
     let hasBabInHnets hnets aba = hnets |> Seq.exists (hasBab aba)
 
@@ -49,12 +49,12 @@ module Parse =
 
     let private _hypernets str =
         match str with
-        | ParseRegex hypernetPattern matches -> Some matches
+        | Regex.Matches hypernetPattern matches -> Some matches
         | _ -> None
 
     let address str =
         match _hypernets str with
-        | Some parts -> parts, System.Text.RegularExpressions.Regex.Replace(str, hypernetPattern, "|") |> split "|"
+        | Some parts -> parts, System.Text.RegularExpressions.Regex.Replace(str, hypernetPattern, "|") |> String.split "|"
         | None -> [], [str]
 
 module Solvers =

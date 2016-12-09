@@ -153,7 +153,7 @@ module Parser =
         | 'U' -> Some Up
         | 'D' -> Some Down
         | _ -> None
-    let asSteps = asChars >> List.choose asMove
+    let asSteps = String.asChars >> List.choose asMove
 
     module A =
         open Domain.A

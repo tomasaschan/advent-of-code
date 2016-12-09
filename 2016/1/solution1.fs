@@ -62,10 +62,10 @@ module Parsing =
     open AoC.Utils.Helpers
     open Domain
     
-    let stepcountFromChars = join >> parseInt
+    let stepcountFromChars = String.join >> Int.parse
 
     let instructionFromString input =
-        match asChars input with
+        match String.asChars input with
         | 'R'::digits -> (Some Right, stepcountFromChars digits)
         | 'L'::digits -> (Some Left, stepcountFromChars digits)
         | _ -> (None, None)
@@ -75,7 +75,7 @@ module Parsing =
         | (Some t, Some s) -> Some { turn = t; steps = s }
         | _ -> None
 
-    let instructions = split ", " >> List.choose parse
+    let instructions = String.split ", " >> List.choose parse
 
 module Solutions =
 

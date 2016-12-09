@@ -19,8 +19,8 @@ module Parse =
         | _ -> None
 
     let removeEmpty = List.filter (fun (s : string) -> s.Length > 0)
-    let parseInts = List.choose parseInt
-    let ints = (split " ") >> removeEmpty >> parseInts
+    let parseInts = List.choose Int.parse
+    let ints = (String.split " ") >> removeEmpty >> parseInts
     let triangle = List.sort >> _triangle
 
 module Solvers =

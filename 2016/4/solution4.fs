@@ -11,9 +11,18 @@ module Domain =
     }
     let getId room = room.id
 
-    let countLetters = asChars >> List.filter (fun c -> c <> '-') >> List.groupBy id >> List.map (fun (c,l) -> c, List.length l)
+    let countLetters =
+        String.asChars
+        >> List.filter (fun c -> c <> '-')
+        >> List.groupBy id
+        >> List.map (fun (c,l) -> c, List.length l)
         
-    let checksum = countLetters >> List.sortBy (fun (char, count) -> (-count, char)) >> List.take 5 >> List.map (fun (char, count) -> char) >> join
+    let checksum =
+        countLetters
+        >> List.sortBy (fun (char, count) -> (-count, char))
+        >> List.take 5
+        >> List.map (fun (char, count) -> char)
+        >> String.join
         
     let isValid room = room.checksum = checksum room.name
 
@@ -22,7 +31,7 @@ module Domain =
         | '-' -> ' '
         | c' -> char ((((int c' + i) - int 'a') % (int 'z' - int 'a' + 1)) + (int 'a'))
 
-    let decrypt i = asChars >> List.map (decryptChar i) >> join
+    let decrypt i = String.asChars >> List.map (decryptChar i) >> String.join
 
     let decrypted room =
         let realName = decrypt room.id room.name
@@ -37,7 +46,7 @@ module Parser =
     let parse str =
         let parsed =
             match str with
-            | RegexMatch @"([a-z\-]+)-(\d+)\[([a-z]+)\]" [name; id; chk] -> Some (name, parseInt id, chk)
+            | Regex.Match @"([a-z\-]+)-(\d+)\[([a-z]+)\]" [name; id; chk] -> Some (name, Int.parse id, chk)
             | _ -> None
 
         match parsed with

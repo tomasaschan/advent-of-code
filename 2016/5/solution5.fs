@@ -16,7 +16,7 @@ module Domain =
 
     module A =
         let key str i =
-            match (doorId str >> hash >> asChars) i with
+            match (doorId str >> hash >> String.asChars) i with
             | '0'::'0'::'0'::'0'::'0'::k::_ -> Some k
             | _ -> None
 
@@ -24,8 +24,7 @@ module Domain =
 
         let private validIndex i = 0 <= i && i < 8
 
-        let private charToInt = sprintf "%c" >> parseInt
-
+        let private charToInt = sprintf "%c" >> Int.parse
         let keyChar chars =
             match chars with
             | '0'::'0'::'0'::'0'::'0'::p::c::_ -> Some (c, charToInt p)
@@ -39,7 +38,7 @@ module Domain =
                 else None
             | _ -> None
 
-        let key str = (doorId str >> hash >> asChars >> keyChar) >> validKeyChar
+        let key str = (doorId str >> hash >> String.asChars >> keyChar) >> validKeyChar
             
         let character = fst
         let position = snd
@@ -58,7 +57,7 @@ module Solver =
             Seq.initInfinite id
                 |> Seq.choose (key input)
                 |> Seq.take 8
-                |> join
+                |> String.join
 
     module B =
 
@@ -71,4 +70,4 @@ module Solver =
                 |> Seq.take 8
                 |> Seq.sortBy position
                 |> Seq.map character
-                |> join
+                |> String.join

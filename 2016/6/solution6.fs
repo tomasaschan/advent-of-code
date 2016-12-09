@@ -6,7 +6,7 @@ module Domain =
 
     let classify str =
         str
-        |> asChars
+        |> String.asChars
         |> List.mapi (fun i c -> i,c)
 
     let pos = fst
@@ -18,6 +18,8 @@ module Domain =
 
     let chars = snd >> List.map char
 
+    let find sorter = List.collect classify >> List.groupBy pos >> List.map (chars >> sorter) >> String.join
+
 module Solver =
 
     module A =
@@ -25,11 +27,11 @@ module Solver =
         open AoC.Utils.Helpers
         open Domain
 
-        let solve = List.collect classify >> List.groupBy pos >> List.map (chars >> mostPopular) >> join
+        let solve = find mostPopular
 
     module B =
 
         open AoC.Utils.Helpers
         open Domain
 
-        let solve = List.collect classify >> List.groupBy pos >> List.map (chars >> leastPopular) >> join
+        let solve = find leastPopular

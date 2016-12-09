@@ -6,42 +6,52 @@ module Helpers =
     
     open System.Text.RegularExpressions
 
-    let split (separator : string) (input : string) = 
-        input.Split([| separator |], StringSplitOptions.None)
-        |> List.ofArray
+    module String =
 
-    let asChars (input : string) =
-        input.ToCharArray()
-        |> List.ofArray
+        let split (separator : string) (input : string) = 
+            input.Split([| separator |], StringSplitOptions.None)
+            |> List.ofArray
 
-    let join (s : char seq) = System.String.Concat(Array.ofSeq(s))
+        let asChars (input : string) =
+            input.ToCharArray()
+            |> List.ofArray
 
-    let parseInt s =
-        match System.Int32.TryParse(s) with
-        | (true, i) -> Some i
-        | (false,_) -> None 
+        let join (s : char seq) = System.String.Concat(Array.ofSeq(s))
 
-    let rec foldk f (acc : 'State) xs =
-        match xs with
-        | [] -> acc
-        | x::xs -> f acc x (fun acc' -> foldk f acc' xs)
+    module Int =
 
-    let contains y xs =
-        xs 
-        |> foldk (fun acc x k ->
-            if   x = y
-            then true
-            else k acc
-        ) false
+        let parse s =
+            match System.Int32.TryParse(s) with
+            | (true, i) -> Some i
+            | (false,_) -> None
 
-    let (|RegexMatch|_|) regex str =
-        let m = Regex(regex).Match(str)
-        if m.Success
-        then Some (List.tail [ for x in m.Groups -> x.Value ])
-        else None
+    module Seq =
 
-    let (|RegexMatches|_|) regex str =
-        let ms = Regex(regex).Matches(str)
-        if ms.Count > 0
-        then Some [for m in ms -> m.Value]
-        else None
+        let rec foldk f (acc : 'State) xs =
+            match xs with
+            | [] -> acc
+            | x::xs -> f acc x (fun acc' -> foldk f acc' xs)
+
+        let contains y xs =
+            xs
+            |> foldk (fun acc x k ->
+                if   x = y
+                then true
+                else k acc
+            ) false
+
+        let mapReduce mapper reducer = Seq.map mapper >> Seq.reduce reducer
+
+    module Regex =
+
+        let (|Match|_|) regex str =
+            let m = Regex(regex).Match(str)
+            if m.Success
+            then Some (List.tail [ for x in m.Groups -> x.Value ])
+            else None
+
+        let (|Matches|_|) regex str =
+            let ms = Regex(regex).Matches(str)
+            if ms.Count > 0
+            then Some [for m in ms -> m.Value]
+            else None

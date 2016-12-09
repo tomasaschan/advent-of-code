@@ -46,9 +46,9 @@ module Parse =
 
     let private _match str =
         match str with
-        | RegexMatch "rect (\d+)x(\d+)" [a;b] -> Some (TO, parseInt a, parseInt b)
-        | RegexMatch "rotate row y=(\d+) by (\d+)" [a;b] -> Some(RR, parseInt a, parseInt b)
-        | RegexMatch "rotate column x=(\d+) by (\d+)" [a;b] -> Some(CR, parseInt a, parseInt b)
+        | Regex.Match "rect (\d+)x(\d+)" [a;b] -> Some (TO, Int.parse a, Int.parse b)
+        | Regex.Match "rotate row y=(\d+) by (\d+)" [a;b] -> Some(RR, Int.parse a, Int.parse b)
+        | Regex.Match "rotate column x=(\d+) by (\d+)" [a;b] -> Some(CR, Int.parse a, Int.parse b)
         | _ -> None
 
     let private _build m =
