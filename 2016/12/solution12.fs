@@ -73,8 +73,6 @@ module Domain =
         | Increment r -> inc state r
         | Decrement r -> dec state r
 
-    let initial = { machine = { a = 0; b = 0; c = 0; d = 0 }; current = 0 }
-
     let rec applyAll state instructions =
         if state.current = List.length instructions
         then state.machine
@@ -104,9 +102,14 @@ module Parse =
         | Some s', Some d' -> Some (Copy { src = Register s'; dest = d' })
         | _ -> None
 
-    let private jump c s =
+    let private jumpRegister c s =
         match register c, Int.parse s with
         | Some c', Some s' -> Some (Jump { condition = Register c'; steps = s' })
+        | _ -> None
+
+    let private jumpConstant c s =
+        match Int.parse c, Int.parse s with
+        | Some c', Some s' -> Some (Jump { condition = Constant c' ; steps = s' })
         | _ -> None
 
     let private increment r =
@@ -121,11 +124,12 @@ module Parse =
 
     let instruction str =
         match str with
-        | Regex.Match "cpy (-?\d+) (\w)" [v; r] -> copyConstant v r
-        | Regex.Match "cpy (\w) (\w)" [src; dst] -> copyRegister src dst
-        | Regex.Match "jnz (\w) (-?\d+)" [cond; steps] -> jump cond steps
-        | Regex.Match "inc (\w)" [r] -> increment r
-        | Regex.Match "dec (\w)" [r] -> decrement r
+        | Regex.Match "^cpy (-?\d+) (\w)$" [v; r] -> copyConstant v r
+        | Regex.Match "^cpy (\w) (\w)$" [src; dst] -> copyRegister src dst
+        | Regex.Match "^jnz (-?\d+) (-?\d+)$" [cond; steps] -> jumpConstant cond steps
+        | Regex.Match "^jnz (\w) (-?\d+)$" [cond; steps] -> jumpRegister cond steps
+        | Regex.Match "^inc (\w)" [r] -> increment r
+        | Regex.Match "^dec (\w)" [r] -> decrement r
         | _ -> None
 
     let instructions = List.choose instruction
@@ -134,10 +138,16 @@ module Solver =
 
     open Domain
 
+    let solve initial =
+        Parse.instructions
+        >> applyAll initial
+        >> (fun state -> state.a)
+        >> sprintf "%d"
+
     module A =
 
-        let solve =
-            Parse.instructions
-            >> applyAll initial
-            >> (fun state -> state.a)
-            >> sprintf "%d"
+        let solve = solve { machine = { a = 0; b = 0; c = 0; d = 0 }; current = 0 }
+
+    module B =
+
+        let solve = solve { machine = { a = 0; b = 0; c = 1; d = 0 }; current = 0 }
