@@ -1,48 +1,21 @@
 namespace AoC.Dec15
 
-module Theory =
-
-    type Congruence = { a : int ; n : int } // x ≡ a (mod n)
-    let congruence a n = { a = a ; n = n }
-    let congruents c = Seq.initInfinite (fun i -> c.a + i * c.n)
-
-    let private _add (x : int) (y : int) = (x + y)
-    let private _congruent n a = a % n = 0
-
-    let private sieveOne c =
-        congruents
-        >> Seq.map (_add c.a)
-        >> Seq.filter (_congruent c.n)
-        >> Seq.head
-
-    let rec private _sieve c = function
-        | [] -> c.a
-        | head::tail -> _sieve { head with a = sieveOne { a = c.a ; n = c.n * head.n } head ; n = c.n * head.n } tail
-
-    let sieve = function
-        | [] -> 0
-        | head::tail -> _sieve head tail
-
 module Domain =
 
-    open Theory
+    type Disc = { index : int ; slots : int; position : int }
 
-    type Disc = { slots : int; position : int }
+    let disc index slots position = { index = index ; slots = slots ; position = position }
 
-    let disc slots position = { slots = slots ; position = position }
+    let index d = d.index
     let slots d = d.slots
     let position d = d.position
 
-    let congruence d = {
-        a = slots d - position d
-        n = slots d
-    }
-    let congruences = List.map congruence
+    let isValid t = List.forall (fun d -> ((position d) + (t + d.index)) % (slots d) = 0)
 
-    let releaseTime =
-        List.sortByDescending slots
-        >> congruences
-        >> Theory.sieve
+    let releaseTime discs =
+        Seq.initInfinite (fun i -> i + 1)
+        |> Seq.filter (fun t -> isValid t discs)
+        |> Seq.head
 
 module Parse =
 
@@ -55,7 +28,7 @@ module Parse =
 
     let private _disc str =
         match parts str with
-        | Some [Some i; Some tot; Some now] -> Some (disc tot now)
+        | Some [Some i; Some tot; Some now] -> Some (disc i tot now)
         | _ -> None
 
     let discs = List.choose _disc
@@ -65,6 +38,15 @@ module Solver =
 
     module A =
 
-        open AoC.Utils
+       let solve = Parse.discs >> releaseTime >> sprintf "%d"
 
-        let solve = Parse.discs >> releaseTime >> sprintf "%d"
+    module B =
+
+        let solve input =
+            let discs = Parse.discs input
+
+            let extra = { index = List.length discs + 1 ; slots = 11 ; position = 0 }
+
+            let t = releaseTime (List.append discs [extra])
+
+            sprintf "%d" t
