@@ -1,44 +1,5 @@
 namespace AoC.Dec9
 
-module DomainOld =
-
-    open AoC.Utils.Helpers
-
-    let expandee len str =
-        let chars = String.asChars str
-        if chars.Length >= len
-        then 
-            let a, b = List.splitAt len chars
-            String.join a, String.join b
-        else "", str
-
-    let parse str = 
-        let parts =
-            match str with 
-            | Regex.Match "^(.*?)\((\d+)x(\d+)\)(.*)$" [prefix; length; reps; rest] ->
-                Some (prefix, Int.parse length, Int.parse reps, rest)
-            | _ -> None
-
-        match parts with
-        | Some (pfx, Some len, Some n, rst) -> Some (pfx, len, n, rst)
-        | _ -> None
-
-    module A =
-        let rec decompressedLength str =
-            match parse str with
-            | Some (pfx, len, n, rst) ->
-                let torepeat, suffix = expandee len rst
-                Seq.sum [String.length pfx; n * String.length torepeat; decompressedLength suffix]
-            | _ -> String.length str
-
-    module B =
-
-        let rec decompressedLength l str =
-            match parse str with
-            | Some (pfx, len, n, rst) ->
-                decompressedLength ((n-1)*len*l) rst
-            | None -> String.length str
-
 module Domain =
 
     type Expander = {
