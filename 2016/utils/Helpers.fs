@@ -25,6 +25,14 @@ module Helpers =
             | (true, i) -> Some i
             | (false,_) -> None
 
+        let (|Even|_|) i =
+            if i % 2 = 0 then Some i
+            else None
+
+        let (|Odd|_|) i =
+            if i % 2 <> 0 then Some i
+            else None
+
     module Seq =
 
         let rec foldk f (acc : 'State) xs =
