@@ -6,7 +6,10 @@
     "compile": {
       "includeFiles": [
         "Types.fs",
-        "Helpers.fs",
+        "Helpers/Int.fs",
+        "Helpers/Seq.fs",
+        "Helpers/Regex.fs",
+        "Helpers/String.fs",
         "Runner.fs"
       ]
     }
