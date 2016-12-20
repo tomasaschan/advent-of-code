@@ -7,6 +7,11 @@ module Int =
         | (true, i) -> Some i
         | (false,_) -> None
 
+    let parseBig s =
+        match bigint.TryParse (s) with
+        | (true, i) -> Some i
+        | (false, _) -> None
+
     let (|Even|_|) i =
         if i % 2 = 0 then Some i
         else None
