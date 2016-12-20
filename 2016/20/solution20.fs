@@ -6,18 +6,14 @@ module Domain =
 
     let rec validFrom lo hi blocked =
         match blocked with
-        | [] ->
-            printfn "no more blocked addresses; returning %A-%A" lo hi
-            [lo, hi]
+        | [] -> [lo, hi]
         | b::bs ->
             if lo < fst b
-            then
-                printfn "there are some unblocked addresses here! %A-%A" lo (fst b - one)
-                (lo, fst b - one) :: (validFrom (snd b + one) hi bs)
+            then (lo, (fst b - one)) :: (validFrom (snd b + one) hi bs)
             else
-                printfn "%A is in a blocked range (%A-%A) - looking from %A..." lo (fst b) (snd b) (snd b + one)
-                validFrom (snd b + one) hi (bs |> List.skipWhile (fun r -> snd r < snd b + one))
-
+                if fst b <= lo && lo <= snd b
+                then validFrom (snd b + one) hi bs
+                else validFrom lo hi bs
     let validRanges lo hi = List.sort >> (validFrom lo hi)
 
 module Parse =

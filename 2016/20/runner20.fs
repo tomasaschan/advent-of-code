@@ -11,7 +11,6 @@ let main argv =
     let lo, hi, args =
         match List.ofArray argv with
         | l::h::a ->
-            printfn "forwarding args %A" a
             Int.parseBig l, Int.parseBig h, a
         | _ -> Some (bigint 0), Some (bigint System.UInt32.MaxValue), List.ofArray argv
 
