@@ -23,3 +23,5 @@ module Domain =
     let isValidMove floor a =
         let dangers = List.filter (dangerous a) floor
 
+        ()
+

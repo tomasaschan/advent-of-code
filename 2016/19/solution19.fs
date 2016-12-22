@@ -26,4 +26,4 @@ module Solver =
 
     module A =
 
-        let solve = helpers >> play
+        let solve _  = "todo" //  helpers >> play

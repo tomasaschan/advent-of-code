@@ -3,7 +3,6 @@
 open System
 open AoC.Utils
 open AoC.Dec15.Solver
-open AoC.Dec15.Theory
 
 [<EntryPoint>]
 let main argv =
