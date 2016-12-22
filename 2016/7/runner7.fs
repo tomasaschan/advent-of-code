@@ -1,11 +1,9 @@
-﻿// Learn more about F# at http://fsharp.org
-
-open AoC.Utils.Runner
+﻿open AoC.Utils.Runner
 open AoC.Dec7.Solvers
 
 [<EntryPoint>]
 let main argv = 
 
-    solve argv A.solve B.solve |> printfn "%s"
+    solveFromFile A.solve B.solve argv
 
-    0 // return an integer exit code
+    0

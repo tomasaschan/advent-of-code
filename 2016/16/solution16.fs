@@ -37,7 +37,7 @@ module Solver =
     open AoC.Utils.Helpers
     open Domain
 
-    let solve len = String.asChars >> extendTo len >> hash >> String.join
+    let solve len = List.head >> String.asChars >> extendTo len >> hash >> String.join
 
 
     module A = 

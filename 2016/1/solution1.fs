@@ -88,9 +88,9 @@ module Solutions =
     module A =
 
         open Domain.A
-        let solve = instructions >> followFrom initState >> distance >> sprintf "%d"
+        let solve = List.head >> instructions >> followFrom initState >> distance >> sprintf "%d"
 
     module B =
 
         open Domain.B
-        let solve = instructions >> followFrom initState >> distance >> sprintf "%d"
+        let solve = List.head >> instructions >> followFrom initState >> distance >> sprintf "%d"

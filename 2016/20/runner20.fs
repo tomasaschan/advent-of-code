@@ -1,7 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-
-open System
-open AoC.Utils.Runner
+﻿open AoC.Utils.Runner
 open AoC.Utils.Helpers
 open AoC.Dec20.Solver
 
@@ -15,8 +12,7 @@ let main argv =
         | _ -> Some (bigint 0), Some (bigint System.UInt32.MaxValue), List.ofArray argv
 
     match lo, hi, args with
-    | Some l, Some h, _ -> solve (Array.ofList args) (A.solve l h) (B.solve l h)
-    | _ -> "couldn't parse input"
-    |> printfn "%s"
+    | Some l, Some h, _ -> solveFromFile (A.solve l h) (B.solve l h) (Array.ofList args)
+    | _ -> printfn "couldn't parse input"
 
-    0 // return an integer exit code
+    0

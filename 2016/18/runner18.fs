@@ -14,9 +14,7 @@ let main argv =
         | _ -> Some 3, [|"short-sample.txt"|]
     
     match count with
-        | Some c -> solve1 input (A.solve c) todo
-        | None -> "incorrect input"
-    |> printfn "%s"
+        | Some c -> solveFromFile (A.solve c) todo input
+        | None -> printfn "incorrect input"
     
-
-    0 // return an integer exit code
+    0

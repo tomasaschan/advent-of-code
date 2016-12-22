@@ -47,7 +47,6 @@ module Domain =
         match b with
         | Bot b -> giveToBot b v
         | Bin b -> giveToBin b v
-        | _ -> id
 
     let getLo bot =
         match bot with

@@ -50,4 +50,4 @@ module Solver =
 
     module A =
 
-        let solve rowCount = Parse.row >> (safeTiles rowCount 0) >> sprintf "%d"
+        let solve rowCount = List.head >> Parse.row >> (safeTiles rowCount 0) >> sprintf "%d"
