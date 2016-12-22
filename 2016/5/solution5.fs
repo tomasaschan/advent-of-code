@@ -2,7 +2,7 @@ namespace AoC.Dec5
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
     
     let hash (str : string) = 
         use md5 = System.Security.Cryptography.MD5.Create()
@@ -47,7 +47,7 @@ module Domain =
 module Solver =
 
     open Domain
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     module A =
         

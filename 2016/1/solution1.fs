@@ -59,7 +59,7 @@ module Domain =
 module Parsing =
 
     open AoC.Utils.Types
-    open AoC.Utils.Helpers
+    open AoC.Utils
     open Domain
     
     let stepcountFromChars = String.join >> Int.parse

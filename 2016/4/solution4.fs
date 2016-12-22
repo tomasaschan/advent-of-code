@@ -2,7 +2,7 @@ namespace AoC.Dec4
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     type Room = {
         name : string
@@ -40,7 +40,7 @@ module Domain =
 
 module Parser =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
     open Domain
 
     let parse str =
@@ -66,7 +66,7 @@ module Solvers =
 
         open Domain
         open Parser
-        open AoC.Utils.Helpers
+        open AoC.Utils
         open System
 
         let containsNorth room = room.name.Contains "north"

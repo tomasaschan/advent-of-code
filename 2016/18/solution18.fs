@@ -35,14 +35,14 @@ module Domain =
 module Parse =
 
     open Domain
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let tile = function
         | '.' -> Some Safe
         | '^' -> Some Trap
         | _ -> None
 
-    let row = AoC.Utils.Helpers.String.asChars >> List.choose tile
+    let row = AoC.Utils.String.asChars >> List.choose tile
 
 module Solver =
 

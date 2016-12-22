@@ -89,7 +89,7 @@ module Domain =
 module Parse =
 
     open Domain
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let pickup value bot =
         match Int.parse value, Int.parse bot with

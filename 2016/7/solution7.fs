@@ -2,7 +2,7 @@ namespace AoC.Dec7
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let windowed size = Seq.windowed size >> Seq.map List.ofSeq
 
@@ -43,7 +43,7 @@ module Domain =
 
 module Parse =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let hypernetPattern = "\[(\w+)\]"
 

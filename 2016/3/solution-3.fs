@@ -10,7 +10,7 @@ module Domain =
 
 module Parse =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
     open Domain
 
     let private _triangle ints =

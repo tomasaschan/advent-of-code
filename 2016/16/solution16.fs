@@ -2,7 +2,7 @@ namespace AoC.Dec16
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let private invert = function
         | '0' -> '1'
@@ -34,7 +34,7 @@ module Domain =
 
 module Solver =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
     open Domain
 
     let solve len = List.head >> String.asChars >> extendTo len >> hash >> String.join

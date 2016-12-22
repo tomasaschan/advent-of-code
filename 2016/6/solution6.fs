@@ -2,7 +2,7 @@ namespace AoC.Dec6
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let classify str =
         str
@@ -24,14 +24,14 @@ module Solver =
 
     module A =
 
-        open AoC.Utils.Helpers
+        open AoC.Utils
         open Domain
 
         let solve = find mostPopular
 
     module B =
 
-        open AoC.Utils.Helpers
+        open AoC.Utils
         open Domain
 
         let solve = find leastPopular

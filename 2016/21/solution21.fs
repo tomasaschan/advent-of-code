@@ -1,6 +1,6 @@
 namespace AoC.Dec21
 
-open AoC.Utils.Helpers
+open AoC.Utils
 
 module Domain =
 
@@ -86,7 +86,7 @@ module Domain =
 module Parse =
 
     open Domain
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let swapPosition a b =
         match Int.parse a, Int.parse b with

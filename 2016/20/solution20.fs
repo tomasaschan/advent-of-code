@@ -18,7 +18,7 @@ module Domain =
 
 module Parse =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let private pint = Int.parseBig
 

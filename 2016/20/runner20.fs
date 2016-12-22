@@ -1,5 +1,5 @@
 ﻿open AoC.Utils.Runner
-open AoC.Utils.Helpers
+open AoC.Utils
 open AoC.Dec20.Solver
 
 [<EntryPoint>]

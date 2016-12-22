@@ -41,7 +41,7 @@ module Domain =
 
 module Parse =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
     open Domain
 
     type InstructionType = TO | RR | CR
@@ -68,7 +68,7 @@ module Parse =
 module Show =
 
     open Domain
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let pixel p = if p then "#" else "."
 

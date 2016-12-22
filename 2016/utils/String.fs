@@ -1,4 +1,4 @@
-namespace AoC.Utils.Helpers
+namespace AoC.Utils
 
 module String =
 

@@ -2,7 +2,7 @@ namespace AoC.Dec19
 
 module Domain =
 
-    open AoC.Utils.Helpers
+    open AoC.Utils
 
     let helpers count = Seq.init count id
 

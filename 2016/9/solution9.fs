@@ -15,7 +15,7 @@ module Domain =
 
     module Parse =
 
-        open AoC.Utils.Helpers
+        open AoC.Utils
 
         let expander str = 
             let parts =
@@ -68,6 +68,6 @@ module Solver =
     
     module B = 
 
-        open AoC.Utils.Helpers
+        open AoC.Utils
 
         let solve = List.map (Domain.B.lengthOf >> sprintf "%A") >> String.concat "\n"
