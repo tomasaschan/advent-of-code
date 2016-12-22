@@ -10,6 +10,7 @@
         "Seq.fs",
         "Regex.fs",
         "String.fs",
+        "Hash.fs",
         "Runner.fs"
       ]
     }

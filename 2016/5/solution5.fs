@@ -3,20 +3,12 @@ namespace AoC.Dec5
 module Domain =
 
     open AoC.Utils
-    
-    let hash (str : string) = 
-        use md5 = System.Security.Cryptography.MD5.Create()
-        str 
-        |> System.Text.Encoding.UTF8.GetBytes
-        |> md5.ComputeHash
-        |> Seq.map (fun c -> c.ToString("X2"))
-        |> Seq.reduce (+)
 
     let doorId str i =  sprintf "%s%d" str i
 
     module A =
         let key str i =
-            match (doorId str >> hash >> String.asChars) i with
+            match (doorId str >> Hash.md5 >> String.asChars) i with
             | '0'::'0'::'0'::'0'::'0'::k::_ -> Some k
             | _ -> None
 
@@ -38,7 +30,7 @@ module Domain =
                 else None
             | _ -> None
 
-        let key str = (doorId str >> hash >> String.asChars >> keyChar) >> validKeyChar
+        let key str = (doorId str >> Hash.md5 >> String.asChars >> keyChar) >> validKeyChar
             
         let character = fst
         let position = snd
