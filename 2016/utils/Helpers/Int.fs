@@ -19,3 +19,6 @@ module Int =
     let (|Odd|_|) i =
         if i % 2 <> 0 then Some i
         else None
+
+    let isEven i = i % 2 = 0
+    let isOdd i = i % 2 = 1

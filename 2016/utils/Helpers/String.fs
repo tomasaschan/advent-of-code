@@ -4,7 +4,7 @@ module String =
 
     open System
 
-    let split (separator : string) (input : string) = 
+    let split (separator : string) (input : string) =
         input.Split([| separator |], StringSplitOptions.None)
         |> List.ofArray
 

@@ -17,10 +17,16 @@ module Seq =
 
     let mapReduce mapper reducer = Seq.map mapper >> Seq.reduce reducer
 
-    let prepend a s =
+    let withPrefix a s =
         seq {
             yield a
             yield! s
+        }
+
+    let withPostfix a s =
+        seq {
+            yield! s
+            yield a
         }
 
     let skipOrEmpty c (s : 'a seq) =
@@ -38,3 +44,10 @@ module Seq =
             while e.MoveNext() do
                 yield e.Current
         }
+
+    let lengthIsAtLeast l = skipOrEmpty (l-1) >> Seq.isEmpty >> not
+
+    let lengthIs l s = 
+        lengthIsAtLeast l s
+        && 
+        not (lengthIsAtLeast (l+1) s)

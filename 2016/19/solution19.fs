@@ -11,7 +11,7 @@ module Domain =
     let third<'a> = Seq.skip 2 >> Seq.tryHead
     let exceptSecond s =
         match Seq.tryHead s with
-        | Some h -> (Seq.skipOrEmpty 2 >> Seq.prepend h) s
+        | Some h -> (Seq.skipOrEmpty 2 >> Seq.withPrefix h) s
         | None -> s
 
     let rec play helpers =
