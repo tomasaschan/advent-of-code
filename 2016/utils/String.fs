@@ -13,3 +13,5 @@ module String =
         |> List.ofArray
 
     let join : char seq -> string = Seq.map (sprintf "%c") >> String.concat ""
+
+    let lowercase (s : string) = s.ToLower ()

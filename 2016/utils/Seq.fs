@@ -15,6 +15,8 @@ module Seq =
             else k acc
         ) false
 
+    let choosei chooser = Seq.mapi chooser >> Seq.choose id
+
     let mapReduce mapper reducer = Seq.map mapper >> Seq.reduce reducer
 
     let withPrefix a s =
