@@ -6,8 +6,12 @@ module Runner =
   let private show part solution = printfn "%s: %i" part solution
 
   let private solveOne a b input =
-    a input |> show "A"
-    b input |> show "B"
+    match a with
+    | Some a' -> a' input |> show "A"
+    | _ -> ()
+    match b with
+    | Some b' -> b' input |> show "B"
+    | _ -> ()
 
   let private trySolveOne = function
   | Some ((a, b), input) -> solveOne a b input |> Some
@@ -47,6 +51,7 @@ module Runner =
 
   let private validateAll<'a> =
     Map.toList
+    >> List.rev
     >> List.map (fst >> validateOne)
     >> List.fold (optionMap2 (fun xs x -> x :: xs)) (Some [])
 
