@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Compile Include="Helpers.fs" />
-    <Compile Include="Runner.fs" />
     <Compile Include="Parse.fs" />
     <Compile Include="Debugging.fs" />
   </ItemGroup>

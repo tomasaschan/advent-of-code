@@ -1,6 +1,11 @@
-module TLycken.AdventOfCode.Dec2
+module TLycken.AdventOfCode.Solutions.Dec2
+
+open TLycken.AdventOfCode.Utils
 
 let checksum lineChecksum = List.sumBy lineChecksum
+let parseLine = splitString [|'\t'; ' '|] >> List.choose Parse.int
+
+let parse = List.map parseLine
 
 module A =
   let minMax line = (List.min line, List.max line)
@@ -18,3 +23,5 @@ module B =
   let lineChecksum = pairs >> List.sumBy pairSum
 
   let solve = checksum lineChecksum
+
+let solvers = (parse >> A.solve), (parse >> B.solve)
