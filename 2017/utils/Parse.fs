@@ -8,8 +8,4 @@ module Parse =
 
   let int = tryParseWith System.Int32.TryParse
 
-  let ints = 
-    String.map id
-    >> Seq.map (sprintf "%c")
-    >> Seq.choose int
-    >> List.ofSeq
+  let digits (s : string) = s.ToCharArray() |> Array.map (sprintf "%c") |> List.ofArray |> List.choose int
