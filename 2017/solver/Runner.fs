@@ -3,8 +3,8 @@ open TLycken.AdventOfCode.Utils
 
 module Runner =
   let private getInstructions = function
-  | [| day; input |] ->
-      Some (day, input)
+  | [| day |] ->
+      Some (day, sprintf ".\\input\\dec%s.txt" day)
   | _ ->
       None
 

@@ -2,8 +2,8 @@
 open TLycken.AdventOfCode.Solutions
 
 let printUsage () =
-    printfn "Usage: aoc <day> <input-file>"
-    printfn "\twhere <day> is the day which to solve, and <input-file> is the path to an existing file"
+    printfn "Usage: dotnet run <day>"
+    printfn "\twhere <day> is the day which to solve, and the input for the problem is at .\\input\\dec<day>.txt"
 
 let solvers =
     Map.empty
