@@ -9,3 +9,7 @@ module Helpers =
     | Some x', Some y' -> Some (f x' y')
     | _ -> None
 
+
+  let orDefault d = function
+    | Some v -> v
+    | None -> d
