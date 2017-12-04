@@ -3,7 +3,7 @@ namespace TLycken.AdventOfCode
 open TLycken.AdventOfCode.Utils
 
 module Runner =
-  let private show part solution = printfn "%s: %i" part solution
+  let private show part solution = printfn "%s: %s" part solution
 
   let private solveOne a b input =
     match a with

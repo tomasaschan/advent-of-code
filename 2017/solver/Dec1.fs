@@ -19,4 +19,6 @@ let solveA = reverseCaptcha 1
 
 let solveB input = reverseCaptcha (List.length input / 2) input
 
-let solvers = Some (parse >> solveA), Some (parse >> solveB)
+let show = sprintf "%i"
+
+let solvers = Some (parse >> solveA >> show), Some (parse >> solveB >> show)

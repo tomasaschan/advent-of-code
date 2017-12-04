@@ -24,4 +24,6 @@ module B =
 
   let solve = checksum lineChecksum
 
-let solvers = Some (parse >> A.solve), Some (parse >> B.solve)
+let show = sprintf "%i"
+
+let solvers = Some (parse >> A.solve >> show), Some (parse >> B.solve >> show)
