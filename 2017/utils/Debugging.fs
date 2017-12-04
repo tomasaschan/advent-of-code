@@ -1,6 +1,6 @@
 namespace TLycken.AdventOfCode.Utils
 
 module Debugging =
-  let printAndReturn x =
-    printfn "%A" x
+  let printAndReturn label x =
+    printfn "%s: %A" label x
     x
