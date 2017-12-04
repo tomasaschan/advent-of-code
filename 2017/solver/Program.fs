@@ -11,6 +11,7 @@ let solvers =
     |> Map.add 1 Dec1.solvers
     |> Map.add 2 Dec2.solvers
     |> Map.add 3 Dec3.solvers
+    |> Map.add 4 Dec4.solvers
 
 [<EntryPoint>]
 let main argv =
