@@ -26,11 +26,7 @@ module A =
 
   let modify i = i + 1
 
-  let solve = solve modify
-
 module B =
   let modify i = if i >= 3 then i - 1 else i + 1
 
-  let solve = solve modify
-
-let solvers = Some A.solve, Some B.solve
+let solvers = solve A.modify, solve B.modify

@@ -3,25 +3,10 @@ namespace TLycken.AdventOfCode
 open TLycken.AdventOfCode.Utils
 
 module Runner =
-  let private show part solution = printfn "%s: %s" part solution
-
-  let private solveOne a b input =
-    match a with
-    | Some a' -> a' input |> show "A"
-    | _ -> ()
-    match b with
-    | Some b' -> b' input |> show "B"
-    | _ -> ()
-
-  let private trySolveOne = function
-  | Some ((a, b), input) -> solveOne a b input |> Some
-  | _ -> None
-
-  let private inputForDay (i : int) = sprintf ".\\input\\dec%i.txt" i
-  let private readInput = System.IO.File.ReadAllLines >> List.ofArray
 
   type Instruction =
   | One of int
+  | Labelled of int * string
   | All
 
   let private getInstructions = function
@@ -30,50 +15,72 @@ module Runner =
     match Parse.int day with
     | Some day' -> Some (One day')
     | _ -> None
+  | [| day; label |] ->
+    match Parse.int day with
+    | Some day' -> Some (Labelled (day', label))
+    | _ -> None
   | _ -> None
 
-  let private validateOne day =
-    let input = inputForDay day
+  let private inputForDay (i : int) = function
+    | Some label -> sprintf ".\\input\\dec%i.txt.%s" i label
+    | _ -> sprintf ".\\input\\dec%i.txt" i
+
+  let private readInput label day =
+    let input = inputForDay day label
     if System.IO.File.Exists(input)
-    then Some (day, readInput input)
+    then input |> System.IO.File.ReadAllLines |> List.ofArray |> Some
     else None
 
-  let private tryPickSolver solvers = function
-    | Some (day, input) ->
-      match Map.tryFind day solvers with
-      | Some solver -> Some (solver, input)
-      | _ -> None
+  let private pickSolver solvers day = Map.tryFind day solvers
+
+  let private gather solvers label day =
+    match readInput label day, pickSolver solvers day with
+    | Some input, Some (a, b) -> Some (day, label, input, a, b)
     | _ -> None
 
-  let runOne solvers = validateOne >> tryPickSolver solvers >> trySolveOne
+  let private show part solution time = printfn "%s: %s (%O)" part solution time
 
-  let private pickSolver solvers (day, input) = Map.find day solvers, input
+  let private solveOne solver input label =
+    let stopWatch = System.Diagnostics.Stopwatch()
+    stopWatch.Start()
+    let solution = solver input
+    stopWatch.Stop()
+    show label solution stopWatch.Elapsed
 
-  let private validateAll<'a> =
-    Map.toList
-    >> List.rev
-    >> List.map (fst >> validateOne)
-    >> List.fold (optionMap2 (fun xs x -> x :: xs)) (Some [])
+  let private solveDay a b input label day =
+    let labeller part = match label with Some l -> sprintf "%s (%s)" part l | None -> part
+    printfn "December %i" day
+    solveOne a input (labeller "A")
+    solveOne b input (labeller "B")
 
-  let private pickAllSolvers solvers = function
-    | Some problems ->
-      problems |> List.map (pickSolver solvers) |> Some
+  let runOne solvers day label =
+    match gather solvers label day with
+    | Some (day, label, input, a, b) ->
+      solveDay a b input label day
+      Some ()
     | _ -> None
 
   let runAll solvers =
-    validateAll solvers
-    |> pickAllSolvers solvers
-    |> function
+    let days = solvers |> Map.toList |> List.map fst
+    let gathered =
+      days
+      |> List.map (gather solvers None)
+      |> List.fold (fun s -> function
+        | Some i ->
+          match s with
+          | Some s' -> Some (i::s')
+          | _ -> None
+        | _ -> None) (Some [])
+      |> function Some l -> Some (List.rev l) | _ -> None
+    match gathered with
     | Some problems ->
-      List.mapi (fun i ((a,b),input) ->
-        printfn "December %i" (i+1)
-        solveOne a b input) problems |> ignore
+      problems |> List.iter (fun (day, label, input, a, b) -> solveDay a b input label day)
       Some ()
-    | _ ->
-      None
+    | _ -> None
 
   let private runAsInstructed solvers = function
-    | One day -> runOne solvers day
+    | One day -> runOne solvers day None
+    | Labelled (day, label) -> runOne solvers day (Some label)
     | All -> runAll solvers
 
   let private tryRunAsInstructed solvers = function

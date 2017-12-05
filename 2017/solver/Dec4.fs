@@ -17,4 +17,4 @@ module B =
 
   let comparer = sortString
 
-let solvers = Some (solve A.comparer), Some (solve B.comparer)
+let solvers = solve A.comparer, solve B.comparer

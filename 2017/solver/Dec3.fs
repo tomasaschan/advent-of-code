@@ -70,9 +70,11 @@ module B =
     then (x',y'), value
     else buildMemory valueGetter target (grid |> put (x',y') value) x' y'
 
-  let solve input =
+  let firstLargerThan input =
     let grid = Map.empty |> Map.add (0,0) 1
     buildMemory getValue input grid 0 0
     |> snd
 
-let solvers = Some A.solve, Some (List.head >> parse >> B.solve >> sprintf "%A")
+  let solve = List.head >> parse >> firstLargerThan >> sprintf "%i"
+
+let solvers = A.solve, B.solve

@@ -26,4 +26,4 @@ module B =
 
 let show = sprintf "%i"
 
-let solvers = Some (parse >> A.solve >> show), Some (parse >> B.solve >> show)
+let solvers = parse >> A.solve >> show, parse >> B.solve >> show
