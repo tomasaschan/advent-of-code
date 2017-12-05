@@ -1,17 +1,22 @@
 module TLycken.AdventOfCode.Solutions.Dec5
+
+open System.Collections.Generic
 open TLycken.AdventOfCode.Utils
 
-let instructionSet = List.choose Parse.int >> List.mapi (fun i x -> i,x) >> Map.ofList
+let makeDict list =
+  let dict = Dictionary<int, int>()
+  List.iter (fun (k,v) -> dict.[k] <- v) list
+  dict
 
-let inc set i = Map.add i ((Map.find i set) + 1) set
+let instructionSet = List.choose Parse.int >> List.mapi (fun i x -> i,x) >> makeDict
 
-let rec move modify count i set =
-  if 0 <= i && i < Map.count set
+let rec move modify count i (set : IDictionary<int, int>) =
+  if set.ContainsKey i
   then
-    let i' = Map.find i set
+    let i' = set.[i]
     let i'' = modify i'
-    let set' = Map.add i i'' set
-    move modify (count+1) (i+i') set'
+    set.[i] <- i''
+    move modify (count+1) (i+i') set
   else
     count
 
