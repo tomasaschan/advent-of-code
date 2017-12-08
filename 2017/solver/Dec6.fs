@@ -1,7 +1,6 @@
 module TLycken.AdventOfCode.Solutions.Dec6
 
 open TLycken.AdventOfCode.Utils
-open TLycken.AdventOfCode.Utils.Debugging
 
 module Memory =
 
