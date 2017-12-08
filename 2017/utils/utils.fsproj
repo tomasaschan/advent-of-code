@@ -5,9 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Debugging.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="Parse.fs" />
-    <Compile Include="Debugging.fs" />
+    <Compile Include="Regex.fs" />
   </ItemGroup>
 
 </Project>

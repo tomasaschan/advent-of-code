@@ -12,6 +12,7 @@
     <Compile Include="Dec4.fs" />
     <Compile Include="Dec5.fs" />
     <Compile Include="Dec6.fs" />
+    <Compile Include="Dec8.fs" />
     <Compile Include="Runner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
