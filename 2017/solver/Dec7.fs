@@ -1,79 +1,36 @@
 module TLycken.AdventOfCode.Solutions.Dec7
 
 open TLycken.AdventOfCode.Utils
-open TLycken.AdventOfCode.Utils.Debugging
-
-type Reference = { name : string }
-type Program = { name : string; weight : int }
-type Atlas = { atlas : Reference; world : Reference list }
 
 module Parse =
-  type AtlasLine = { carrier : Program; world : Reference list }
-  type Line = PL of Program | AL of AtlasLine
+  let line weights discs = function
+    | Regex.Match "^([a-z]+) \((\d+)\) -> (?:([a-z]+)(?:, )?)+$" matches ->
+      match matches with
+      | carrier :: (weight :: above) ->
+        match Parse.int weight with
+        | Some w -> Map.add carrier w weights, Map.add carrier above discs
+        | _ -> weights, discs
+      | _ -> weights, discs
+    | Regex.Match "^(\w+) \((\d+)\)$" matches ->
+      match matches with
+      | [program; weight] ->
+        match Parse.int weight with
+        | Some w -> Map.add program w weights, discs
+        | _ -> weights, discs
+      | _ -> weights, discs
+    | _ -> weights, discs
 
-  let line = function
-    | Regex.Match "^([a-z]+) \((\d+)\) -> (?:([a-z]+)(?:, )?)+$" names ->
-      match names with
-      | atlas :: (w :: world) ->
-        match Parse.int w with
-        | Some weight ->
-          {
-            carrier = { name = atlas; weight = weight }
-            world = world |> List.map (fun n -> { name = n })
-          }
-          |> AL
-          |> Some
-        | _ ->
-          None
-      | _ -> None
-    | Regex.Match "^(\w+) \((\d+)\)$" [program; w] ->
-      match Parse.int w with
-      | Some weight ->
-        {
-          name = program
-          weight = weight
-        }
-        |> PL |> Some
-      | _ ->
-        printfn "failed to parse int from %s (%A)" w [program;w]
-        None
-    | _ -> None
+  let lines = List.fold (fun (weights, discs) l -> line weights discs l) (Map.empty, Map.empty)
 
-  let lines = List.choose line
-
-  let interpretProgram = function
-    | AL { carrier = p } -> p
-    | PL p -> p
-
-  let interpretAtlas = function
-    | AL { carrier = { name = n }; world = world } ->
-      {
-        atlas = { name = n };
-        world = world
-      } |> Some
-    | _ -> None
-
-  let weights =
-    lines
-    >> List.map (interpretProgram >> (fun { name = n; weight = w } -> n,w))
-    >> Map.ofList
-  let atlases =
-    lines
-    >> List.choose interpretAtlas
-    >> List.map (fun { atlas = { name = n }; world = w } -> n,w |> List.map (fun { name = n } -> n))
-    >> Map.ofList
-
-
-let root input =
-  let programs = input |> Parse.atlases |> Map.toList
-  let carriers = programs |> List.map fst |> Set.ofList
-  let carriees = programs |> List.collect snd |> Set.ofList
+let root weights discs =
+  let carriers = weights |> Map.toList |> List.map fst |> Set.ofList
+  let carriees = discs |> Map.toList |> List.collect snd |> Set.ofList
 
   Set.difference carriers carriees |> Set.maxElement
 
 module A =
 
-  let solve = root
+  let solve = Parse.lines >> (fun (ws,ds) -> root ws ds)
 
 module B =
 
@@ -93,9 +50,6 @@ module B =
     
 
   let solve input =
-    let root = root input
-    let weights = input |> Parse.weights
-    let discs = input |> Parse.atlases
 
     // let total = identifyMismatch weights discs 0 root
 
