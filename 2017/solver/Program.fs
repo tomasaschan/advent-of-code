@@ -16,6 +16,7 @@ let solvers =
         Dec6.solvers
         Dec7.solvers
         Dec8.solvers
+        Dec9.solvers
     ] |> List.mapi (fun i s -> i+1,s) |> Map.ofList
 
 [<EntryPoint>]
