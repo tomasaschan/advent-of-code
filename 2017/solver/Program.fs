@@ -7,15 +7,16 @@ let printUsage () =
     printfn "\tIf no <day> is given, all implemented solutions are run."
 
 let solvers =
-    Map.empty
-    |> Map.add 1 Dec1.solvers
-    |> Map.add 2 Dec2.solvers
-    |> Map.add 3 Dec3.solvers
-    |> Map.add 4 Dec4.solvers
-    |> Map.add 5 Dec5.solvers
-    |> Map.add 6 Dec6.solvers
-    |> Map.add 7 Dec7.solvers
-    |> Map.add 8 Dec8.solvers
+    [
+        Dec1.solvers
+        Dec2.solvers
+        Dec3.solvers
+        Dec4.solvers
+        Dec5.solvers
+        Dec6.solvers
+        Dec7.solvers
+        Dec8.solvers
+    ] |> List.mapi (fun i s -> i+1,s) |> Map.ofList
 
 [<EntryPoint>]
 let main argv =
