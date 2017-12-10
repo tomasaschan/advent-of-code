@@ -9,6 +9,7 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="Parse.fs" />
     <Compile Include="Regex.fs" />
+    <Compile Include="String.fs" />
   </ItemGroup>
 
 </Project>
