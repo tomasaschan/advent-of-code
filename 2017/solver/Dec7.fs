@@ -44,43 +44,52 @@ module A =
 
 module B =
 
-  let balanced : int list -> bool = List.distinct >> List.length >> (=) 1
-
-  let minmax lst = List.min lst, List.max lst
-
-  let outlier = List.groupBy id >> List.sortBy (snd >> List.length) >> List.head >> snd >> List.head
+  type Program = {
+    name : string
+    weight : int
+    children : Program list
+  }
 
   let solve input =
     let weights, discs = Parse.lines input
 
-    let rec totalWeight name =
-      let self = Map.find name weights
-      let above = onTopOf discs name |> List.sumBy totalWeight
-      self + above
+    let rec buildTree root = 
+      let weight n = Map.find n weights
+      let children name = Map.tryFind name discs |> orDefault List.empty
 
-    let rec findImbalancedTower candidate =
-      let above = Map.find candidate discs
-      let was = above |> List.map totalWeight
+      { name = root; weight = weight root; children = children root |> List.map buildTree }
 
-      if balanced was
-      then candidate
+    let rec totalWeight p =
+      p.weight + (p.children |> List.sumBy totalWeight)
+
+    let isBalanced program = 
+      program.children
+      |> List.map totalWeight
+      |> Set.ofList
+      |> Set.count
+      |> (=) 1
+
+    let rec findCorrection root =
+      if isBalanced root then
+        None
+      elif root.children |> List.forall isBalanced then
+        let childWeights = root.children |> List.map totalWeight
+        let partitioner w = childWeights |> List.filter ((=) w) |> List.length |> (=) 1
+        let bad, good = childWeights |> List.partition partitioner
+        let goodW, badW = List.head good, List.head bad
+
+        let badProgram = root.children |> List.find (fun p -> totalWeight p = badW)
+
+        Some (goodW - (badProgram.children |> List.sumBy totalWeight))
       else
-        let i = List.findIndex (fun w -> w = outlier was) was
-        let candidate' = above.[i]
-        findImbalancedTower candidate'
+        root.children
+        |> List.choose findCorrection
+        |> List.tryHead
 
-    let root = root discs
-    let imbalanced = findImbalancedTower root
-    let parent = match carrier discs imbalanced with Some p -> p | None -> failwith "fuck"
-    let above = Map.find parent discs |> List.map totalWeight
-
-    let strange = outlier above
-
-    let i = List.findIndex ((=) strange) above
-    let outlier = above.[i]
-    let j = List.findIndex ((<>) strange) above
-    let normal = above.[j]
-    let im = Map.find imbalanced weights
-    im + normal - outlier |> sprintf "%i"
+    root discs
+    |> buildTree
+    |> findCorrection
+    |> Option.get
+    |> sprintf "%i"
 
 let solvers = A.solve, B.solve
