@@ -1,8 +1,6 @@
 module TLycken.AdventOfCode.Solutions.Dec9
 
 open TLycken.AdventOfCode.Utils
-open TLycken.AdventOfCode.Utils.Debugging
-open System.Security.Cryptography
 
 type Character =
 | OpenGroup
@@ -11,11 +9,6 @@ type Character =
 | CloseGarbage
 | Escape
 | Regular
-
-type Mode =
-| Normal
-| Garbage
-| Escaping
 
 module Parse =
   let character = function
