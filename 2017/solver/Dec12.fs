@@ -8,41 +8,41 @@ module Parse =
   | Regex.Match "^(\d+) <-> (?:(\d+),? ?)+$" group -> Some group
   | _ -> None
 
-  let groups = List.choose group >> List.map (List.choose Parse.int >> Set.ofList)
+  let pipe =
+    function
+    | h :: rest -> Parse.int h, List.map Parse.int rest
+    | _ -> None, [None]
+    >>
+    function
+    | Some h, rest -> Some (h, List.choose id rest |> Set.ofList)
+    | _ -> None
 
+  let groups = List.choose group >> List.choose pipe >> Map.ofList
 
-let connectedToZero alreadyConnected thisGroup =
-  if Set.intersect alreadyConnected thisGroup <> Set.empty
-  then Set.union alreadyConnected thisGroup
-  else alreadyConnected
+let rec traverse connected visited queue groups =
+  match queue with
+  | [] -> connected
+  | g :: rest ->
+    let next = Map.find g groups
+    let connected' = connected + next
+    let queue' = (Set.ofList rest) + next - visited |> Set.toList
+    let visited' = Set.add g visited
+    traverse connected' visited' queue' groups
 
-let onePass alreadyConnected groups = List.fold connectedToZero alreadyConnected groups
+let partitionIncluding x = traverse Set.empty Set.empty [x]
 
-let rec connected alreadyConnected groups =
-  let alreadyConnected' = onePass alreadyConnected groups
-  if alreadyConnected' = alreadyConnected
-  then alreadyConnected'
-  else connected alreadyConnected' groups
+let rec partition partitions groups =
+  match Map.tryFindKey (fun g _ -> List.exists (fun g' -> Set.contains g g') partitions |> not) groups with
+  | Some start ->
+    let part = partitionIncluding start groups
+    let partitions' = part :: partitions
+    partition partitions' groups
+  | None -> partitions
 
 module A =
-
-  let solve = Parse.groups >> connected (Set.singleton 0) >> Set.count >> sprintf "%i"
+  let solve = Parse.groups >> partitionIncluding 0 >> Set.count >> sprintf "%i"
 
 module B =
-
-  let rec partition n partitioned groups =
-    let programs = Set.unionMany groups
-    let unPartitioned = Set.difference programs partitioned
-    let nextPartition = connected (Set.singleton (Set.minElement unPartitioned)) groups
-    let partitioned' = Set.union partitioned nextPartition
-
-    if programs = partitioned'
-    then n + 1
-    else partition (n + 1) partitioned' groups
-
-  let solve = Parse.groups >> partition 0 Set.empty >> sprintf "%i"
-
-let todo (_ : string list) = "todo"
-let out<'a> = sprintf "%A"
+  let solve = Parse.groups >> partition List.empty >> List.length >> sprintf "%i"
 
 let solvers = A.solve, B.solve
