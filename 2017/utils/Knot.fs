@@ -41,5 +41,5 @@ module TLycken.AdventOfCode.Utils.Knot
     let sparseHash, _, _ = hashSparse 64 0 0 lengths data
     sparseHash
     |> List.chunkBySize 16
-    |> List.map (hashDense >> sprintf "%x")
+    |> List.map (hashDense >> sprintf "%02x")
     |> String.join ""
