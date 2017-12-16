@@ -2,7 +2,7 @@ module TLycken.AdventOfCode.Solutions.Dec4
 
 open TLycken.AdventOfCode.Utils
 
-let parse = List.map (splitString [|' '|])
+let parse = List.map (String.split " ")
 
 let isValid comparer = List.countBy comparer >> List.exists (fun (_, count) -> count > 1) >> not
 
@@ -13,7 +13,7 @@ module A =
   let comparer = id
 
 module B =
-  let sortString = asChars >> List.sort >> asString
+  let sortString = String.asChars >> List.sort >> String.joinC ""
 
   let comparer = sortString
 

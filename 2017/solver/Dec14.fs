@@ -6,10 +6,10 @@ let read = List.head >> (fun s -> (List.init 128 (fun i -> sprintf "%s-%i" s i))
 
 let toBinary (i : int) = sprintf "%s" <| System.Convert.ToString(i, 2)
 
-let asBinary = asChars >> List.map (sprintf "%c") >> List.choose Parse.hexInt >> List.map toBinary >> List.choose Parse.int >> List.map (sprintf "%04i") >> String.concat ""
+let asBinary = String.asChars >> List.map (sprintf "%c") >> List.choose Parse.hexInt >> List.map toBinary >> List.choose Parse.int >> List.map (sprintf "%04i") >> String.concat ""
 
 let withCoords = List.mapi (fun i bs -> List.mapi (fun j b -> (i,j), b) bs) >> List.collect id >> Map.ofList
-let createMap = List.map (Knot.hash >> asBinary >> asChars >> List.map ((=) '1'))
+let createMap = List.map (Knot.hash >> asBinary >> String.asChars >> List.map ((=) '1'))
 let state = read >> createMap >> withCoords
 
 module A =

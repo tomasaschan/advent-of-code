@@ -1,7 +1,8 @@
 namespace TLycken.AdventOfCode.Utils
 
-open System.Globalization
 module Parse =
+
+  open TLycken.AdventOfCode.Utils
 
   let private tryParseWith parser = parser >> function
     | true, v -> Some v
@@ -21,7 +22,7 @@ module Parse =
     | x when 'a' <= x && x <= 'f' -> Some (hexResult x 'a' + 10)
     | _ -> None
 
-  let hexInt = asChars >> List.map hexChar >> (fun ints ->
+  let hexInt = String.asChars >> List.map hexChar >> (fun ints ->
     if List.contains None ints
     then None
     else

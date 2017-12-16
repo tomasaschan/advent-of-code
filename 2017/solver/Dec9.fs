@@ -34,7 +34,7 @@ module A =
       | _ -> score total false garbage nestingLevel cs
 
 
-  let solve = List.head >> asChars >> score 0 false false 0 >> sprintf "%i"
+  let solve = List.head >> String.asChars >> score 0 false false 0 >> sprintf "%i"
 
 module B =
 
@@ -49,6 +49,6 @@ module B =
       | _ when garbage -> score (total+1) escaping garbage cs
       | _ -> score total escaping garbage cs
 
-  let solve = List.head >> asChars >> score 0 false false >> sprintf "%i"
+  let solve = List.head >> String.asChars >> score 0 false false >> sprintf "%i"
 
 let solvers<'a> = A.solve, B.solve

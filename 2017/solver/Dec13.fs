@@ -3,7 +3,7 @@ module TLycken.AdventOfCode.Solutions.Dec13
 open TLycken.AdventOfCode.Utils
 
 module Parse =
-  let layer = splitString [|':';' '|] >> List.filter ((<>) "") >> List.choose Parse.int >> (function [a;b] -> Some (a,b) | _ -> None)
+  let layer = String.split ": " >> List.choose Parse.int >> (function [a;b] -> Some (a,b) | _ -> None)
 
   let layers = List.choose layer
 

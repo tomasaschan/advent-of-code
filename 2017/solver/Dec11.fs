@@ -14,7 +14,7 @@ module Parse =
   | "nw" -> Some NW
   | _ -> None
 
-  let directions = splitString [|','|] >> List.choose direction
+  let directions = String.split "," >> List.choose direction
 
 type Position = { nw : int; n : int; ne : int }
 let center = { nw = 0; n = 0; ne = 0 }

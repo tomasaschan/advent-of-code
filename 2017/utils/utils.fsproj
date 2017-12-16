@@ -7,9 +7,9 @@
   <ItemGroup>
     <Compile Include="Debugging.fs" />
     <Compile Include="Helpers.fs" />
+    <Compile Include="String.fs" />
     <Compile Include="Parse.fs" />
     <Compile Include="Regex.fs" />
-    <Compile Include="String.fs" />
     <Compile Include="Knot.fs" />
   </ItemGroup>
 

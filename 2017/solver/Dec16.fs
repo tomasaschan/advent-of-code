@@ -16,7 +16,7 @@ module Parse =
     function
     | Regex.Match "s(\d+)" [steps] -> PSpin (Parse.int steps) |> Some
     | Regex.Match "x(\d+)/(\d+)" [A;B] -> PExchange (Parse.int A, Parse.int B) |> Some
-    | Regex.Match "p([a-p])/([a-p])" [A;B] -> PPartner (A |> asChars |> List.head, B |> asChars |> List.head) |> Some
+    | Regex.Match "p([a-p])/([a-p])" [A;B] -> PPartner (A |> String.asChars |> List.head, B |> String.asChars |> List.head) |> Some
     | _ -> None
     >>
     function
@@ -25,7 +25,7 @@ module Parse =
     | Some (PPartner (A, B)) -> Some (Partner (A, B))
     | _ -> None
 
-  let instructions = splitString [|','|] >> List.choose instruction
+  let instructions = String.split "," >> List.choose instruction
 
 let applySpin s state =
   let n = List.length state

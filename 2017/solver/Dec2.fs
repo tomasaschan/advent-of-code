@@ -3,7 +3,7 @@ module TLycken.AdventOfCode.Solutions.Dec2
 open TLycken.AdventOfCode.Utils
 
 let checksum lineChecksum = List.sumBy lineChecksum
-let parseLine = splitString [|'\t'; ' '|] >> List.choose Parse.int
+let parseLine = String.split "\t" >> List.choose Parse.int
 
 let parse = List.map parseLine
 

@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Dec16.fs" />
+    <Compile Include="String.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

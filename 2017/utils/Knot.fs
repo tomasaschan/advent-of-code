@@ -32,7 +32,7 @@ module TLycken.AdventOfCode.Utils.Knot
 
   let setup input =
     let appendix = [17; 31; 73; 47; 23]
-    let lengths = List.append ((asChars >> List.map int) input) appendix
+    let lengths = List.append ((String.asChars >> List.map int) input) appendix
     let ints = List.init 256 id
     lengths, ints
   

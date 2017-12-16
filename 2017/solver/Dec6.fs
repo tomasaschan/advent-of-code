@@ -40,7 +40,7 @@ module Memory =
     |> incAll toAll
     |> incSome 1 (fst largestBank + 1 % count) toSome
 
-let parse = List.head >> splitString [|'\t'|] >> List.choose Parse.int >> Memory.ofList
+let parse = List.head >> String.split "\t" >> List.choose Parse.int >> Memory.ofList
 
 module A =
 
