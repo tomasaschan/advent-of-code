@@ -5,10 +5,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Dec16.fs" />
+    <Compile Include="Dec17.fs" />
+    <Compile Include="Dec18.fs" />
     <Compile Include="String.fs" />
+    <Compile Include="List.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FsCheck.Xunit" Version="2.10.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
     <PackageReference Include="Unquote" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
@@ -16,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-  </ItemGroup> 
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\solver\solver.fsproj" />
     <ProjectReference Include="..\utils\utils.fsproj" />

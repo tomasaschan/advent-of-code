@@ -10,6 +10,8 @@ module Parse =
 
   let int = tryParseWith System.Int32.TryParse
 
+  let int64 = tryParseWith System.Int64.TryParse
+
   let uint = tryParseWith System.UInt32.TryParse
 
   let uint64 = tryParseWith System.UInt64.TryParse

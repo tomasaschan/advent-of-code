@@ -1,6 +1,7 @@
 namespace TLycken.AdventOfCode.Utils
 
 open System
+
 module String =
   let join sep = List.reduce (fun a b -> sprintf "%s%s%s" a sep b)
 
