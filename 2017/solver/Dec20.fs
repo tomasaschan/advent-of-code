@@ -12,7 +12,8 @@ module Parse =
     | _ -> None
 
 module A =
-  let solve = List.choose Parse.particle >> List.indexed >> List.minBy (snd >> (fun (_, _, (x,y,z)) -> abs x + abs y + abs z)) >> fst >> sprintf "%i"
+  let acceleration (_,_,(ax,ay,az)) = abs ax + abs ay + abs az
+  let solve = List.choose Parse.particle >> List.indexed >> List.minBy (snd >> acceleration) >> fst >> sprintf "%i"
 
 module B =
   let update ((x,y,z),(vx,vy,vz),(ax,ay,az)) =
@@ -21,22 +22,23 @@ module B =
     ((x',y',z'), (vx',vy', vz'), (ax,ay,az))
   
   let collides ((x,y,z),_,_) ((x',y',z'),_,_) = x = x' && y = y' && z = z'
-  let position ((x,y,z),_,_) = (x,y,z)
+  let position (p,_,_) = p
 
   let removeCollisions = List.groupBy position >> List.filter (snd >> List.length >> (=) 1) >> List.collect snd
 
-  let rec tick t tend particles =
+  let rec tick t tend =
     if t = tend
-    then List.length particles
-    else
-      let particles' =
-        particles
-        |> List.map update
-        |> removeCollisions
-      tick (t+1) tend particles'
+    then id
+    else List.map update >> removeCollisions >> tick (t+1) tend
 
-  let solve = List.choose Parse.particle >> tick 0 10000 >> sprintf "%i"
+  let rec tickToSteadyState tstep removed particles =
+    match removed with
+    | Some 0 -> List.length particles
+    | _ ->
+      let particles' = tick 0 tstep particles
+      let removed' = List.length particles - List.length particles'
+      tickToSteadyState tstep (Some removed') particles'
 
-let todo (_ : string list) = "todo"
+  let solve = List.choose Parse.particle >> tickToSteadyState 10 None >> sprintf "%i"
 
 let solvers = A.solve, B.solve
