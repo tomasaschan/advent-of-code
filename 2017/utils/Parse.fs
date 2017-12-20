@@ -16,6 +16,8 @@ module Parse =
 
   let uint64 = tryParseWith System.UInt64.TryParse
 
+  let double = tryParseWith System.Double.TryParse
+
   let private hexResult x offset = Operators.int x - Operators.int offset
 
   let private hexChar = function

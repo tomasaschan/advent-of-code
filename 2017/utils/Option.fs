@@ -5,3 +5,7 @@ module Option =
     match a, b with
     | Some a, Some b -> Some (a, b)
     | _ -> None
+
+  let bind3 = function
+    | (Some a, Some b, Some c) -> Some (a, b, c)
+    | _ -> None

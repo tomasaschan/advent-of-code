@@ -1,0 +1,64 @@
+module TLycken.AdventOfCode.Solutions.Dec20
+
+type Vector = double * double * double
+
+module Vector =
+  let add (x,y,z) (x',y',z') = (x+x', y+y', z+z')
+  let scale k (x,y,z) = (k*x, k*y, k*z)
+  let zero = (0.,0.,0.)
+
+  open TLycken.AdventOfCode.Utils
+
+  let parse =
+    function
+    | Regex.Match "(.+),(.+),(.+)" [x;y;z] -> (Parse.double x, Parse.double y, Parse.double z) |> Option.bind3
+    | _ -> None
+
+type Particle = {
+  position : Vector
+  velocity : Vector
+  acceleration : Vector
+}
+
+module Particle =
+  open TLycken.AdventOfCode.Utils
+  let parse =
+    function
+    | Regex.Match "p=<(.+)>, v=<(.+)>, a=<(.+)>" [p;v;a] -> (Vector.parse p, Vector.parse v, Vector.parse a) |> Option.bind3
+    | _ -> None
+    >>
+    function
+    | Some (p, v, a) -> Some { position = p; velocity = v; acceleration = a }
+    | _ -> None
+
+  let distanceFromOrigo { position = (x,y,z) } = abs x + abs y + abs z
+
+module Physics =
+  open TLycken.AdventOfCode.Utils.Debugging
+  let private goto1 t (x,v,a) = (x + v*t + 0.5 * a * a * t), (v + a * t), a
+
+  let goto t p =
+    let { position = (x,y,z); velocity = (vx,vy,vz); acceleration = (ax, ay, az) } = p
+    let (x',vx',ax') = goto1 t (x,vx,ax)
+    let (y',vy',ay') = goto1 t (y,vy,ay)
+    let (z',vz',az') = goto1 t (z,vz,az)
+    {
+      position = x',y',z'
+      velocity = vx',vy',vz'
+      acceleration = ax',ay',az'
+    } |> printAndReturn (sprintf "%A after %f" p t)
+
+module Input =
+  let parse = List.choose Particle.parse
+
+module A =
+
+  open TLycken.AdventOfCode.Utils.Debugging
+
+  let distanceAt t = Physics.goto t >> Particle.distanceFromOrigo
+
+  let solve = Input.parse >> List.map (distanceAt 1.) >> List.indexed >> printAndReturn "distances" >> List.minBy snd >> fst >> sprintf "%i"
+
+let todo (_ : string list) = "todo"
+
+let solvers = A.solve, todo
