@@ -26,6 +26,7 @@
     <Compile Include="Dec18.fs" />
     <Compile Include="Dec19.fs" />
     <Compile Include="Dec20.fs" />
+    <Compile Include="Dec22.fs" />
     <Compile Include="Runner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -34,4 +35,7 @@
     <ProjectReference Include="..\utils\utils.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+  </ItemGroup>
 </Project>
