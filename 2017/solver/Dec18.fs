@@ -268,13 +268,11 @@ module B =
     and wait instructions ma mb =
       if Machine.isBlocked mb instructions
       then
-        printfn "%A %A\n%A %A" ma (Machine.next ma instructions) mb (Machine.next mb instructions)
         match ma.id, mb.id with
         | Zero, One -> mb.sent
         | One, Zero -> ma.sent
         | _ -> failwith "Machines have same id"
       else
-        printfn "handover from %A to %A" ma.id mb.id
         evolve instructions (mb, ma)
 
   let solve = Parse.instructions >> (fun instrs -> State.evolve instrs State.init) >> sprintf "%i"
