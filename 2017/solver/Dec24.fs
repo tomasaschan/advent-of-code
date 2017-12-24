@@ -1,26 +1,20 @@
 module TLycken.AdventOfCode.Solutions.Dec24
 open TLycken.AdventOfCode.Utils
 
-module Bridges =
-  let usable x (_,b) = x = b
-  let flip (a,b) = (b,a)
-
-  let bridgeHead = List.tryHead >> function Some (a,_) -> a | None -> 0
+module Bridge =
+  let head = List.tryHead >> function Some (a,_) -> a | None -> 0
+  let usable x (a,b) = x = a || x = b
+  let align x (a,b) = if x = a then (b,a) elif x = b then (a,b) else failwithf "Tried to align (%i,%i) with %i" a b x
 
   let rec findBest score bridge parts =
-    let filterUsable = Set.filter (bridge |> bridgeHead |> usable)
-    let extend f p = findBest score (p :: bridge) (Set.remove (f p) parts)
-    let extendAll f = Set.map (extend f) >> Set.toList
+    let bridgeHead = head bridge
+    let extend p = findBest score ((align bridgeHead p) :: bridge) (Set.remove p parts)
 
-    let usableParts = filterUsable parts
-    let revUsableParts = parts |> Set.map flip |> Set.filter (not << Set.isIn parts) |> filterUsable
+    let usableParts = Set.filter (usable bridgeHead) parts
 
-    if Set.isEmpty usableParts && Set.isEmpty revUsableParts
-    then
-      score bridge
-    else
-      (extendAll id usableParts @ extendAll flip revUsableParts)
-      |> List.max
+    if Set.isEmpty usableParts
+    then score bridge
+    else Set.map extend usableParts |> Set.maxElement
       
 
 
@@ -32,7 +26,7 @@ module Parse =
 module A =
 
   let score = List.sumBy (fun (a,b) -> a + b)
-  let solve = Parse.components >> Bridges.findBest score [] >> sprintf "%i"
+  let solve = Parse.components >> Bridge.findBest score [] >> sprintf "%i"
 
 
 module B =
@@ -41,6 +35,6 @@ module B =
     let l = List.length bridge
     l, s
 
-  let solve = Parse.components >> Bridges.findBest score [] >> snd >> sprintf "%i"
+  let solve = Parse.components >> Bridge.findBest score [] >> snd >> sprintf "%i"
 
 let solvers = A.solve, B.solve
