@@ -2,57 +2,45 @@ module TLycken.AdventOfCode.Solutions.Dec24
 open TLycken.AdventOfCode.Utils
 
 module Bridges =
-
-  type Part = int * int
-  type Tree = Leaf of Part | Branch of Part * Tree list
-
   let usable x (_,b) = x = b
   let flip (a,b) = (b,a)
 
-  let rec build tree parts =
-    let usableParts = parts |> Set.filter (tree |> fst |> usable)
-    let revUsableParts = parts |> Set.map flip |> Set.filter (tree |> fst |> usable)
+  let bridgeHead = List.tryHead >> function Some (a,_) -> a | None -> 0
+
+  let rec findBest score bridge parts =
+    let filterUsable = Set.filter (bridge |> bridgeHead |> usable)
+    let extend f p = findBest score (p :: bridge) (Set.remove (f p) parts)
+    let extendAll f = Set.map (extend f) >> Set.toList
+
+    let usableParts = filterUsable parts
+    let revUsableParts = parts |> Set.map flip |> Set.filter (not << Set.isIn parts) |> filterUsable
 
     if Set.isEmpty usableParts && Set.isEmpty revUsableParts
-    then Leaf tree
+    then
+      score bridge
     else
-      let children = usableParts |> Set.map (fun part -> build part (Set.remove part parts)) |> Set.toList
-      let revChildren = revUsableParts |> Set.map (fun part -> build part (Set.remove (flip part) parts)) |> Set.toList
-      Branch (tree, children @ revChildren)
+      (extendAll id usableParts @ extendAll flip revUsableParts)
+      |> List.max
+      
 
 
 module Parse =
-  let part =
-    String.split "/"
-    >>
-    function
-    | [a;b] -> Some (Parse.int a, Parse.int b)
-    | _ -> None
-    >>
-    function
-    | Some x -> Option.bind2 x : Bridges.Part option
-    | _ -> None
+  let part = String.split "/" >> (function [a;b] -> Some (Parse.int a, Parse.int b) | _ -> None) >> Option.bind Option.bind2
 
   let components = List.choose part >> Set.ofList
 
 module A =
 
-  open Bridges
-
-  let rec strongest = function
-  | Leaf (a,b) -> a + b
-  | Branch ((a,b), children) -> a + b + (children |> List.map strongest |> List.max)
-
-  let solve = Parse.components >> Bridges.build (0,0) >> strongest >> sprintf "%i"
+  let score = List.sumBy (fun (a,b) -> a + b)
+  let solve = Parse.components >> Bridges.findBest score [] >> sprintf "%i"
 
 
 module B =
-  open Bridges
+  let score bridge =
+    let s = A.score bridge
+    let l = List.length bridge
+    l, s
 
-  let rec lengthAndStrength l s = function
-  | Leaf (a,b) -> l + 1, s + a + b
-  | Branch ((a,b), children) -> children |> List.map (lengthAndStrength (l+1) (s+a+b)) |> List.max
-
-  let solve = Parse.components >> Bridges.build (0,0) >> lengthAndStrength 0 0 >> snd >> sprintf "%i"
+  let solve = Parse.components >> Bridges.findBest score [] >> snd >> sprintf "%i"
 
 let solvers = A.solve, B.solve

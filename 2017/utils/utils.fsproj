@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="Debugging.fs" />
+    <Compile Include="Set.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="String.fs" />
