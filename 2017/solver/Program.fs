@@ -30,6 +30,7 @@ let solvers =
         Dec20.solvers
         Dec21.solvers
         Dec22.solvers
+        Dec23.solvers
     ] |> List.mapi (fun i s -> i+1,s) |> Map.ofList
 
 [<EntryPoint>]
