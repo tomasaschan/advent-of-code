@@ -1,15 +1,14 @@
 module TLycken.AdventOfCode.Solutions.Dec25
 
-type Tape = Map<int,bool>
-
+type Tape = System.Collections.Generic.Dictionary<int,bool>
 module Tape =
-  let empty = Map.empty : Tape
+  let empty = System.Collections.Generic.Dictionary<int,bool>() : Tape
 
-  let write = Map.add : int -> bool -> Tape -> Tape
+  let write i v (tape : Tape) = tape.[i] <- v
 
-  let read i = (Map.tryFind i >> function Some x -> x | None -> false) : Tape -> bool
+  let read i (tape : Tape) = if tape.ContainsKey i then tape.[i] else false
 
-  let checksum = Map.toList >> List.filter snd >> List.length
+  let checksum (tape : Tape) = tape.Values |> Seq.length
 
 
 type WriteAction = bool
@@ -73,19 +72,19 @@ module Parse =
 module TuringMachine =
   let move i = function Right -> i + 1 | Left -> i - 1
 
-  let step1 choices ((ifZero, ifOne), tape, pos) =
+  let step1 choices ((ifZero, ifOne), pos) tape =
     let w, m, n = if Tape.read pos tape then ifOne else ifZero
-    let tape' = Tape.write pos w tape
+    Tape.write pos w tape
     let pos' = move pos m
     let ifZero', ifOne' = choices n
-    (ifZero', ifOne'), tape', pos'
+    (ifZero', ifOne'), pos'
 
-  let rec step choices steps state =
+  let rec step choices steps state tape =
     if steps = 0
-    then state
+    then ()
     else
-      let state' = step1 choices state
-      step choices (steps-1) state'
+      let state' = step1 choices state tape
+      step choices (steps-1) state' tape
 
 let choices transitions state = Map.find state transitions
 
@@ -99,10 +98,9 @@ let solve input =
   if not <| Map.containsKey firstState transitions
   then failwith "Failed to parse transitions"
 
-  let init = choices transitions firstState, Tape.empty, 0
-  let final = TuringMachine.step (choices transitions) n init
-
-  let (_, tape, _) = final
+  let tape = Tape.empty
+  let init = choices transitions firstState, 0
+  TuringMachine.step (choices transitions) n init tape
 
   let checksum = Tape.checksum tape
 
