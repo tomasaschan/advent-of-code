@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <Compile Include="Int.fs" />
+    <Compile Include="Seq.fs" />
+    <Compile Include="Regex.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="Hash.fs" />
+    <Compile Include="Runner.fs" />
+  </ItemGroup>
+
+</Project>
