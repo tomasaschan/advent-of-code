@@ -2,3 +2,6 @@ bin
 obj
 project.lock.json
 .vscode
+.ionide
+
+.fake

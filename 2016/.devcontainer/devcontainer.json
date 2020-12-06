@@ -1,0 +1,7 @@
+{
+    "image": "mcr.microsoft.com/dotnet/sdk:5.0",
+    "extensions": [
+        "ionide.ionide-fsharp",
+        "ionide.mechanic"
+    ]
+}
