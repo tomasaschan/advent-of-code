@@ -2,12 +2,12 @@ namespace AoC.Utils
 
 module Int =
 
-    let parse s =
+    let parse (s : string) =
         match System.Int32.TryParse(s) with
         | (true, i) -> Some i
         | (false,_) -> None
 
-    let parseBig s =
+    let parseBig (s : string) =
         match bigint.TryParse (s) with
         | (true, i) -> Some i
         | (false, _) -> None
