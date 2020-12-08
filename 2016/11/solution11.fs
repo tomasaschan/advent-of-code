@@ -35,7 +35,34 @@ module Domain =
         { Things: Map<Thing, Floor>
           Elevator: Floor }
 
-    let thingsOnFloor s f =
+
+    let hash (s: State) =
+        let elevator = s.Elevator
+
+        let aliases =
+            s.Things
+            |> Map.toSeq
+            |> Seq.map (function
+                | (Microchip m, f) -> (f, "m", m)
+                | (Generator g, f) -> (f, "g", g))
+            |> Seq.sortBy id
+            |> Seq.distinctBy (fun (_, _, element) -> element)
+            |> Seq.map (fun (_, _, element) -> element)
+            |> Seq.zip (Seq.initInfinite (fun i -> char (i + 97)))
+            |> Seq.map (fun (alias, element) -> (element, string alias))
+            |> Map.ofSeq
+
+        let things =
+            s.Things
+            |> Map.toSeq
+            |> Seq.map (function
+                | (Microchip m, f) -> (Microchip aliases.[m], f)
+                | (Generator g, f) -> (Generator aliases.[g], f))
+            |> Map.ofSeq
+
+        (elevator, things)
+
+    let thingsOnFloor (s: State) f =
         s.Things
         |> Map.toSeq
         |> Seq.filter (snd >> (=) f)
@@ -156,36 +183,42 @@ module Domain =
         |> Seq.forall ((=) Fourth)
 
     let fastestSolution (s: State) =
-        let seen = HashSet<State>()
+        let seen = HashSet()
         let mutable m = 0
-        seen.Add s |> ignore
+        let q = Queue()
+        seen.Add(hash s) |> ignore
+        q.Enqueue(s, [])
 
-        let rec bfs q =
-            match q with
-            | [] -> failwith "No solution"
-            | (s, steps) :: q' ->
-                if isDone s then
-                    steps
+        let rec bfs () =
+            let (s, steps) =
+                try
+                    q.Dequeue()
+                with :? System.InvalidOperationException -> failwith "No solution"
+
+            if isDone s then
+                steps
+            else
+                let nexts =
+                    nextStates s
+                    |> Seq.filter (hash >> seen.Contains >> not)
+                    |> Seq.map (fun s' -> (s', s' :: steps))
+                    |> List.ofSeq
+
+                nexts
+                |> Seq.map fst
+                |> Seq.iter (fun s' ->
+                    seen.Add(hash s') |> ignore
+                    q.Enqueue(s', s :: steps))
+
+                if steps.Length > m then
+                    printfn "%d moves - seen %d states so far..." steps.Length seen.Count
+                    m <- m + 1
                 else
-                    let nexts =
-                        nextStates s
-                        |> Seq.filter (seen.Contains >> not)
-                        |> Seq.map (fun s' -> (s', s' :: steps))
-                        |> List.ofSeq
+                    ()
 
-                    nexts
-                    |> Seq.map fst
-                    |> Seq.iter (seen.Add >> ignore)
+                bfs ()
 
-                    if steps.Length > m then
-                        printfn "%d moves..." steps.Length
-                        m <- m + 1
-                    else
-                        ()
-
-                    bfs (q' @ nexts)
-
-        bfs [ (s, []) ]
+        bfs ()
 
     let exampleState =
         { Things =

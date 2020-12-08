@@ -1,9 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="Int.fs" />
@@ -12,6 +10,7 @@
     <Compile Include="String.fs" />
     <Compile Include="Hash.fs" />
     <Compile Include="Runner.fs" />
+    <Compile Include="Queue.fs" />
+    <Compile Include="Option.fs" />
   </ItemGroup>
-
 </Project>
