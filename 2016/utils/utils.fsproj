@@ -11,6 +11,5 @@
     <Compile Include="Hash.fs" />
     <Compile Include="Runner.fs" />
     <Compile Include="Queue.fs" />
-    <Compile Include="Option.fs" />
   </ItemGroup>
 </Project>
