@@ -1,5 +1,5 @@
 {
-    "image": "mcr.microsoft.com/dotnet/sdk:5.0",
+    "image": "docker.pkg.github.com/tomasaschan/vscode-devcontainers/dotnet:latest",
     "extensions": [
         "ionide.ionide-fsharp",
         "ionide.mechanic"
