@@ -41,5 +41,7 @@ module Queue =
     let empty<'T> = Queue<'T>.Empty
     let ofList ts = Queue<_>.OfList ts
     let toList (Q q) = q.ToList()
-    let enqueue (Q q) x = q.Enqueue x
+    let enqueue x (Q q) = q.Enqueue x
     let dequeue (Q q) = q.Dequeue()
+
+    let singleton x = enqueue x empty
