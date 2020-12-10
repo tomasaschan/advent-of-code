@@ -1,6 +1,5 @@
 namespace AoC.Dec13
 
-open System.Collections.Generic
 open AoC.Utils
 
 module Solver =
