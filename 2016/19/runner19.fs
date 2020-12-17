@@ -4,6 +4,6 @@ open AoC.Dec19.Solver
 [<EntryPoint>]
 let main argv = 
 
-    solveFromFile A.solve todo argv
+    solveFromArgs A.solve B.solve argv
 
     0
