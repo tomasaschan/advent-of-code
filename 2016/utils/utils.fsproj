@@ -12,5 +12,6 @@
     <Compile Include="Runner.fs" />
     <Compile Include="Queue.fs" />
     <Compile Include="Search.fs" />
+    <Compile Include="Func.fs" />
   </ItemGroup>
 </Project>

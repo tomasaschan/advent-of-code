@@ -43,5 +43,5 @@ module Queue =
     let toList (Q q) = q.ToList()
     let enqueue x (Q q) = q.Enqueue x
     let dequeue (Q q) = q.Dequeue()
-
+    let length (Q q) = q.Length
     let singleton x = enqueue x empty
