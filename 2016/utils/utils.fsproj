@@ -13,5 +13,6 @@
     <Compile Include="Queue.fs" />
     <Compile Include="Search.fs" />
     <Compile Include="Func.fs" />
+    <Compile Include="Asembunny.fs" />
   </ItemGroup>
 </Project>
