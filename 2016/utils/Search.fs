@@ -26,3 +26,28 @@ module Search =
         match nexts cur with
         | [] -> [ cur ]
         | nexts' -> nexts' |> List.collect (exhaust nexts)
+
+module SearchMut =
+    open System.Collections.Generic
+
+    let bfs (start: 'a) (nexts: 'a -> HashSet<'a> -> 'a seq) (finished: 'a -> HashSet<'a> -> bool) =
+        let q = Queue()
+        let s = HashSet()
+
+        let rec search () =
+            let (cur, n) = q.Dequeue()
+
+            if finished cur s then
+                cur, s, n
+            else
+                nexts cur s
+                |> Seq.iter
+                    (fun nxt ->
+                        q.Enqueue(nxt, n + 1)
+                        s.Add nxt |> ignore)
+
+                search ()
+
+        q.Enqueue(start, 0)
+
+        search ()
