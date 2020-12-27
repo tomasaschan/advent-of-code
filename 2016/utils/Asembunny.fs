@@ -41,11 +41,13 @@ module Asembunny =
         | Decrement of Value
         | Toggle of Value
         | Noop
+        | Out of Value
 
     type State =
         { Current: int
           Memory: Memory
-          Program: Map<int, Instruction> }
+          Program: Map<int, Instruction>
+          Output: int -> unit }
 
     let showv =
         function
@@ -66,6 +68,7 @@ module Asembunny =
         | Toggle x -> sprintf "tgl %s" (showv x)
         | Multiply (a, x, y) -> sprintf "mul %s %s %s" (showv (Register a)) (showv (Register x)) (showv (Register y))
         | Noop -> "nop"
+        | Out x -> sprintf "out %s" (showv x)
 
 
     let init a b c d program =
@@ -75,7 +78,9 @@ module Asembunny =
               program
               // TODO: rewrite as a folder that takes multiwidth of mul instructions into account
               |> Seq.zip (Seq.initInfinite id)
-              |> Map.ofSeq }
+              |> Map.ofSeq
+          Output = ignore }
+
 
     let mov steps state =
         { state with
@@ -87,6 +92,7 @@ module Asembunny =
         | Some (Increment v) -> Some(Decrement v)
         | Some (Decrement v) -> Some(Increment v)
         | Some (Toggle v) -> Some(Increment v)
+        | Some (Out v) -> Some(Increment v)
         | Some (Copy { Src = a; Dest = b }) -> Some(Jump { Condition = a; Steps = b })
         | Some (Jump { Condition = a; Steps = b }) -> Some(Copy { Src = a; Dest = b })
         | Some (Multiply args) -> Some(Multiply args)
@@ -155,6 +161,10 @@ module Asembunny =
 
             mov 1 { state with Memory = mem' }
         | Noop -> mov 1 state
+        | Out v ->
+            let x = get v state.Memory
+            state.Output x
+            mov 1 state
 
     let rec run (state: State) =
         // printfn
@@ -204,6 +214,8 @@ module Asembunny =
             | Some (Register a'), Some (Register x'), Some (Register y') -> Some(Multiply(a', x', y'))
             | _ -> None
 
+        let private out = Option.map Out
+
 
         let instruction =
             function
@@ -220,6 +232,8 @@ module Asembunny =
             | Regex.Match @"^tgl (\w)$" [ r ] -> toggle (register r)
             | Regex.Match @"^tgl (\d+)$" [ steps ] -> toggle (constant steps)
             | Regex.Match @"^mul (\w) (\w) (\w)$" [ a; x; y ] -> multiply (register a) (register x) (register y)
+            | Regex.Match @"^out (\w)$" [ r ] -> out (register r)
+            | Regex.Match @"^out (-?\d+)$" [ c ] -> out (constant c)
             | "nop" -> Some Noop
             | i -> failwithf "failed to parse %s" i
 
