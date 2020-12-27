@@ -6,7 +6,8 @@ module Solver =
 
     let solve c: string list -> string =
         List.choose Parse.instruction
-        >> run (init 0 0 c 0)
+        >> init 0 0 c 0
+        >> run
         >> (fun m -> m.A)
         >> sprintf "%d"
 
