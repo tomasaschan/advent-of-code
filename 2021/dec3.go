@@ -1,22 +1,6 @@
-package main
+package aoc2021
 
-import (
-	"fmt"
-	"os"
-
-	"github.com/tomasaschan/advent-of-code-2021/pkg/utils"
-)
-
-func main() {
-	input, err := utils.ReadInput(os.Stdin)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("a: %d\nb: %d\n", a(input), b(input))
-}
-
-func a(input []string) int {
+func dec3_a(input []string) int {
 	bitCounts := bitCounts(input)
 
 	gammaString := ""
@@ -37,7 +21,7 @@ func a(input []string) int {
 	return gamma * epsilon
 }
 
-func b(input []string) int {
+func dec3_b(input []string) int {
 	oxygen := filter(input, 0, func(ones int, zeroes int) bool {
 		return zeroes <= ones
 	})

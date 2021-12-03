@@ -1,23 +1,12 @@
-package main
+package aoc2021
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
-func main() {
-	input, err := read()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("a: %d\nb: %d\n", a(input), b(input))
-}
-
-func a(plan []instruction) int {
+func dec2_a(input []string) int {
+	plan := mustParse(input)
 	x, d := 0, 0
 
 	for _, i := range plan {
@@ -34,7 +23,8 @@ func a(plan []instruction) int {
 	return x * d
 }
 
-func b(plan []instruction) int {
+func dec2_b(input []string) int {
+	plan := mustParse(input)
 	x, d, aim := 0, 0, 0
 
 	for _, i := range plan {
@@ -57,22 +47,18 @@ type instruction struct {
 	argument int
 }
 
-func read() ([]instruction, error) {
-	bytes, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		return nil, err
-	}
+func mustParse(input []string) []instruction {
 	rx := regexp.MustCompile(`(\w+) (\d+)`)
 
 	result := make([]instruction, 0)
-	for _, line := range strings.Split(string(bytes), "\n") {
+	for _, line := range input {
 		if line == "" {
 			continue
 		}
 		parts := rx.FindSubmatch([]byte(line))
 		arg, err := strconv.Atoi(string(parts[2]))
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 		result = append(result, instruction{
 			command:  string(parts[1]),
@@ -80,5 +66,5 @@ func read() ([]instruction, error) {
 		})
 	}
 
-	return result, nil
+	return result
 }
