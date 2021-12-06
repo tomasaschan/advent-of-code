@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 )
 
@@ -15,4 +16,19 @@ func AsInts(input []string) ([]int, error) {
 		result[i] = j
 	}
 	return result, nil
+}
+
+func AllInts(line string) []int {
+	rx := regexp.MustCompile(`-?\d+`)
+	digits := rx.FindAllString(line, -1)
+	ints := make([]int, len(digits))
+
+	for i, a := range digits {
+		j, err := strconv.Atoi(a)
+		if err != nil {
+			continue
+		}
+		ints[i] = j
+	}
+	return ints
 }
