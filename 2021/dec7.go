@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils"
+	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/funcs"
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/ints"
 )
 
@@ -18,11 +19,11 @@ func dec7_a(input string) int {
 func dec7_b(input string) int {
 	return findBestAlignmentCost(
 		utils.AllInts(input),
-		memoize(fuelToGo),
+		funcs.MemoizeIntInt(fuelToGo),
 	)
 }
 
-func findBestAlignmentCost(positions []int, fuelCost FuncIntInt) int {
+func findBestAlignmentCost(positions []int, fuelCost funcs.FuncIntInt) int {
 	sort.Ints(positions)
 	best := math.MaxInt
 	for i := 0; i <= positions[len(positions)-1]; i++ {
@@ -38,7 +39,7 @@ func findBestAlignmentCost(positions []int, fuelCost FuncIntInt) int {
 
 }
 
-func fuelTo(positions []int, x int, cost FuncIntInt) int {
+func fuelTo(positions []int, x int, cost funcs.FuncIntInt) int {
 	f := 0
 	for i := range positions {
 		f += cost(ints.Abs(positions[i] - x))
@@ -52,20 +53,4 @@ func fuelToGo(d int) int {
 		f += i
 	}
 	return f
-}
-
-type FuncIntInt func(int) int
-
-func memoize(f FuncIntInt) FuncIntInt {
-	cache := map[int]int{}
-
-	return func(i int) int {
-		if j, ok := cache[i]; ok {
-			return j
-		}
-
-		j := f(i)
-		cache[i] = j
-		return j
-	}
 }
