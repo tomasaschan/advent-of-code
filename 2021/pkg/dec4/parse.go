@@ -20,7 +20,7 @@ func parseBoard(input string) (Board, error) {
 	return NewBoard(rows), nil
 }
 
-func Parse(input string) ([]int, []Board, error) {
+func parse(input string) ([]int, []Board, error) {
 	parts := strings.Split(input, "\n\n")
 
 	announcements := utils.AllInts(parts[0])

@@ -1,11 +1,11 @@
-package aoc2021
+package dec2
 
 import (
 	"regexp"
 	"strconv"
 )
 
-func dec2_a(input []string) int {
+func A(input []string) int {
 	plan := mustParse(input)
 	x, d := 0, 0
 
@@ -23,7 +23,7 @@ func dec2_a(input []string) int {
 	return x * d
 }
 
-func dec2_b(input []string) int {
+func B(input []string) int {
 	plan := mustParse(input)
 	x, d, aim := 0, 0, 0
 

@@ -1,11 +1,7 @@
-package aoc2021
+package dec4
 
-import (
-	"github.com/tomasaschan/advent-of-code-2021/dec4"
-)
-
-func dec4_a(input string) int {
-	announcements, boards, err := dec4.Parse(input)
+func A(input string) int {
+	announcements, boards, err := parse(input)
 	if err != nil {
 		panic(err)
 	}
@@ -22,8 +18,8 @@ func dec4_a(input string) int {
 	return 0
 }
 
-func dec4_b(input string) int {
-	announcements, boards, err := dec4.Parse(input)
+func B(input string) int {
+	announcements, boards, err := parse(input)
 	if err != nil {
 		panic(err)
 	}

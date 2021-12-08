@@ -27,7 +27,7 @@ var _ = Describe("Dec 4 parsing", func() {
 2  0 12  3  7
 `
 	It("can parse input", func() {
-		announcements, boards, err := Parse(input)
+		announcements, boards, err := parse(input)
 
 		Expect(err).NotTo(HaveOccurred())
 		Expect(announcements).To(Equal(

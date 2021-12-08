@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/tomasaschan/advent-of-code-2021/pkg/dec6"
 )
 
 var _ = Describe("Dec 6", func() {
@@ -12,11 +13,11 @@ var _ = Describe("Dec 6", func() {
 		input := "3,4,3,1,2"
 
 		It("solves part a", func() {
-			Expect(dec6_a(input)).To(Equal(5934))
+			Expect(dec6.A(input)).To(Equal(5934))
 		})
 
 		It("solves part b", func() {
-			Expect(dec6_b(input)).To(Equal(26984457539))
+			Expect(dec6.B(input)).To(Equal(26984457539))
 		})
 	})
 
@@ -25,11 +26,11 @@ var _ = Describe("Dec 6", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		It("solves part a", func() {
-			Expect(dec6_a(string(input))).To(Equal(343441))
+			Expect(dec6.A(string(input))).To(Equal(343441))
 		})
 
 		It("solves part b", func() {
-			Expect(dec6_b(string(input))).To(Equal(1569108373832))
+			Expect(dec6.B(string(input))).To(Equal(1569108373832))
 		})
 	})
 })

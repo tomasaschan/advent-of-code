@@ -1,14 +1,14 @@
-package aoc2021
+package dec6
 
 import (
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils"
 )
 
-func dec6_a(input string) int {
+func A(input string) int {
 	return solve(input, 80)
 }
 
-func dec6_b(input string) int {
+func B(input string) int {
 	return solve(input, 256)
 }
 

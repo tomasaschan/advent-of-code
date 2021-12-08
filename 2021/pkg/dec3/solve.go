@@ -1,6 +1,6 @@
-package aoc2021
+package dec3
 
-func dec3_a(input []string) int {
+func A(input []string) int {
 	bitCounts := bitCounts(input)
 
 	gammaString := ""
@@ -21,7 +21,7 @@ func dec3_a(input []string) int {
 	return gamma * epsilon
 }
 
-func dec3_b(input []string) int {
+func B(input []string) int {
 	oxygen := filter(input, 0, func(ones int, zeroes int) bool {
 		return zeroes <= ones
 	})

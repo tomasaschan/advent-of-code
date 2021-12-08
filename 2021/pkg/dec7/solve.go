@@ -1,4 +1,4 @@
-package aoc2021
+package dec7
 
 import (
 	"math"
@@ -9,14 +9,14 @@ import (
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/ints"
 )
 
-func dec7_a(input string) int {
+func A(input string) int {
 	return findBestAlignmentCost(
 		utils.AllInts(input),
 		func(d int) int { return d },
 	)
 }
 
-func dec7_b(input string) int {
+func B(input string) int {
 	return findBestAlignmentCost(
 		utils.AllInts(input),
 		funcs.MemoizeIntInt(fuelToGo),

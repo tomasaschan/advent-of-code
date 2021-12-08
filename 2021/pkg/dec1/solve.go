@@ -1,8 +1,8 @@
-package aoc2021
+package dec1
 
 import "github.com/tomasaschan/advent-of-code-2021/pkg/utils"
 
-func dec1_a(input []string) int {
+func A(input []string) int {
 	measurements, err := utils.AsInts(input)
 	if err != nil {
 		return -1
@@ -20,7 +20,7 @@ func dec1_a(input []string) int {
 	return increases
 }
 
-func dec1_b(input []string) int {
+func B(input []string) int {
 	measurements, err := utils.AsInts(input)
 	if err != nil {
 		return -1

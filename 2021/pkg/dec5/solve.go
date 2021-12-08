@@ -1,4 +1,4 @@
-package aoc2021
+package dec5
 
 import (
 	"strings"
@@ -6,13 +6,13 @@ import (
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils"
 )
 
-func dec5_a(input string) int {
+func A(input string) int {
 	lines := parse(input)
 	floor := createMap(lines, false)
 	return floor.dangers()
 }
 
-func dec5_b(input string) int {
+func B(input string) int {
 	lines := parse(input)
 	floor := createMap(lines, true)
 	return floor.dangers()
