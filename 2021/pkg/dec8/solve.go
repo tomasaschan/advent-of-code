@@ -1,7 +1,6 @@
 package dec8
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils"
@@ -47,7 +46,6 @@ func B(input string) int {
 }
 
 func outputValue(display [][]string) int {
-	fmt.Println()
 	mapping := mapWires(append(display[0], display[1]...))
 
 	value := 0
