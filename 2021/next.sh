@@ -46,7 +46,7 @@ var _ = Describe(\"Dec %s\", func() {
 	Context(\"real input\", func() {
 		bytes, err := ioutil.ReadFile(\"input/dec%s.txt\")
 		
-		It("reads input OK", func() {
+		It(\"reads input OK\", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 

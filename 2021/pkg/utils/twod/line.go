@@ -1,13 +1,8 @@
-package utils
-
-type Point2D struct {
-	X int
-	Y int
-}
+package twod
 
 type Line struct {
-	Start Point2D
-	End   Point2D
+	Start Vector
+	End   Vector
 }
 
 func (l *Line) Dx() int {
@@ -33,8 +28,8 @@ func (l *Line) IsDiagonal() bool {
 	return l.Start.X != l.End.X && l.Start.Y != l.End.Y
 }
 
-func (l *Line) Points() []Point2D {
-	result := []Point2D{l.Start}
+func (l *Line) Points() []Vector {
+	result := []Vector{l.Start}
 
 	p := l.Start
 	for p != l.End {
