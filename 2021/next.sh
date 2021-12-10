@@ -3,6 +3,9 @@
 day=${1?"usage: $0 day"}
 
 mkdir -p "pkg/dec$day"
+mkdir -p input
+touch "input/dec$day.txt"
+
 if ! [[ -f "pkg/dec$day/solve.go" ]]; then
     printf "package dec%d
 
