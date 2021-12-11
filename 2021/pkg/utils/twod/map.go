@@ -12,6 +12,16 @@ type Map struct {
 
 type TerrainFunc func(rune) interface{}
 
+func BlankMap(upperLeft Vector, lowerRight Vector, defaultValue interface{}) Map {
+	m := Map{terrain: map[Vector]interface{}{}}
+	for x := upperLeft.X; x <= lowerRight.X; x++ {
+		for y := upperLeft.Y; y <= lowerRight.Y; y++ {
+			m.terrain[Vector{X: x, Y: y}] = defaultValue
+		}
+	}
+	return m
+}
+
 func MapFromString(input string, terrain func(rune) interface{}) Map {
 	m := Map{terrain: map[Vector]interface{}{}}
 
@@ -41,6 +51,10 @@ func (m Map) At(p Vector) interface{} {
 	return nil
 }
 
+func (m Map) UpdateAt(p Vector, v interface{}) {
+	m.terrain[p] = v
+}
+
 func (p Vector) Add(v Vector) Vector {
 	return Vector{p.X + v.X, p.Y + v.Y}
 }
@@ -57,6 +71,9 @@ func (v Vector) LeftOf() Vector  { return v.Add(Left()) }
 
 func (v Vector) Surroundings() []Vector {
 	return []Vector{v.Above(), v.RightOf(), v.Below(), v.LeftOf()}
+}
+func (v Vector) DiagonalSurroundings() []Vector {
+	return []Vector{v.LeftOf().Above(), v.RightOf().Above(), v.LeftOf().Below(), v.RightOf().Below()}
 }
 
 func (m Map) Corners() (Vector, Vector) {
