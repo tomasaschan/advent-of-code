@@ -54,7 +54,7 @@ CN -> C
 		})
 
 		It("solves part b", func() {
-			// Expect(dec14.B(input)).To(Equal(0))
+			Expect(dec14.B(input)).To(Equal(2884513602164))
 		})
 	})
 })

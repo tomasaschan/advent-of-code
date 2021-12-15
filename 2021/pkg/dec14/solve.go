@@ -6,48 +6,49 @@ import (
 	"strings"
 )
 
-// todo:
-// - proper recursion
-// - proper memoization
-
-func A(input string) int64 {
+func A(input string) int {
 	return solve(input, 10)
 }
 
-func B(input string) int64 {
+func B(input string) int {
 	return solve(input, 40)
 }
 
-func solve(input string, iterations int) int64 {
+func solve(input string, iterations int) int {
 	template, rules := parse(input)
-	expander := polymerExpander{
-		rules:    rules,
-		elements: map[rune]int64{},
-		memo:     map[expansion]count{},
+	expander := expander{rules, make(map[expansion]count)}
+
+	counts := make(count)
+	for _, r := range template {
+		counts[r] += 1
 	}
-	fmt.Println()
 
 	for i := 1; i < len(template); i++ {
-		expander.elements.add(expander.expand(
-			expansion{
-				pair:       template[i-1 : i+1],
-				iterations: iterations,
-			}))
-	}
-	expander.elements[rune(template[len(template)-1])] += 1
+		x := expansion{
+			pair:       template[i-1 : i+1],
+			iterations: iterations,
+		}
 
-	for element, count := range expander.elements {
-		fmt.Printf("%c %d\n", element, count)
+		for r, c := range expander.expand(x) {
+			counts[r] += c
+		}
 	}
+	fmt.Printf("\nexpanded %s %d times:\n%v\n", template, iterations, counts)
+	min, max := counts.minmax()
 
-	min, max := expander.elements.minmax()
 	return max - min
 }
 
-type polymerExpander struct {
-	rules    map[string]string
-	memo     map[expansion]count
-	elements count
+type rules map[string]rune
+
+type count map[rune]int
+
+func (c count) String() string {
+	sb := strings.Builder{}
+	for r, n := range c {
+		sb.WriteString(fmt.Sprintf("\t%c: %d\n", r, n))
+	}
+	return sb.String()
 }
 
 type expansion struct {
@@ -55,73 +56,65 @@ type expansion struct {
 	iterations int
 }
 
-func (e expansion) left(middle string) expansion {
-	return expansion{
-		pair:       e.pair[:1] + middle,
-		iterations: e.iterations - 1,
-	}
-}
-func (e expansion) right(middle string) expansion {
-	return expansion{
-		pair:       middle + e.pair[1:],
-		iterations: e.iterations - 1,
-	}
+type expander struct {
+	rules rules
+	memo  map[expansion]count
 }
 
-type count map[rune]int64
-
-func (a count) add(b count) {
-	for r, n := range b {
-		a[r] += n
+func (e expander) expand(x expansion) count {
+	if c, ok := e.memo[x]; ok {
+		return c
 	}
+
+	if x.iterations == 0 {
+		return make(count)
+	}
+
+	inserted := e.rules[x.pair]
+	left := expansion{
+		pair:       fmt.Sprintf("%c%c", x.pair[0], inserted),
+		iterations: x.iterations - 1,
+	}
+	right := expansion{
+		pair:       fmt.Sprintf("%c%c", inserted, x.pair[1]),
+		iterations: x.iterations - 1,
+	}
+
+	e.memo[x] = make(count)
+	e.memo[x][inserted] += 1
+	for r, c := range e.expand(left) {
+		e.memo[x][r] += c
+	}
+	for r, c := range e.expand(right) {
+		e.memo[x][r] += c
+	}
+	return e.memo[x]
 }
 
-func (e polymerExpander) expand(expansion expansion) count {
-	if counts, ok := e.memo[expansion]; ok {
-		return counts
-	}
-
-	if expansion.iterations == 0 {
-		counts := map[rune]int64{
-			rune(expansion.pair[0]): 1,
+func (c count) minmax() (int, int) {
+	min, max := math.MaxInt, math.MinInt
+	for _, n := range c {
+		if n < min {
+			min = n
 		}
-		e.memo[expansion] = counts
-		return counts
-	}
-
-	inserted := e.rules[expansion.pair]
-
-	counts := e.expand(expansion.left(inserted))
-	counts.add(e.expand(expansion.right(inserted)))
-	e.memo[expansion] = counts
-	return counts
-}
-
-func (elements count) minmax() (int64, int64) {
-	var min, max int64
-	min, max = math.MaxInt64, math.MinInt64
-	for _, c := range elements {
-		if c < min {
-			min = c
-		}
-		if c > max {
-			max = c
+		if n > max {
+			max = n
 		}
 	}
 	return min, max
 }
 
-func parse(input string) (template string, rules map[string]string) {
+func parse(input string) (template string, rules rules) {
 	parts := strings.Split(input, "\n\n")
 	template = parts[0]
 
-	rules = map[string]string{}
+	rules = map[string]rune{}
 	for _, line := range strings.Split(parts[1], "\n") {
 		if line == "" {
 			continue
 		}
 		parts := strings.Split(line, " -> ")
-		rules[parts[0]] = parts[1]
+		rules[parts[0]] = rune(parts[1][0])
 	}
 
 	return
