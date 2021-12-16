@@ -33,7 +33,6 @@ func solve(input string, iterations int) int {
 			counts[r] += c
 		}
 	}
-	fmt.Printf("\nexpanded %s %d times:\n%v\n", template, iterations, counts)
 	min, max := counts.minmax()
 
 	return max - min

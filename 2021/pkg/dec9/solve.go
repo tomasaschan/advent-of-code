@@ -8,7 +8,7 @@ import (
 )
 
 func A(input string) int {
-	m := twod.MapFromString(input, twod.Ints())
+	m := twod.IntMapFromString(input, twod.Ints())
 
 	totalRisk := 0
 	for _, sink := range sinks(m) {
@@ -19,7 +19,7 @@ func A(input string) int {
 }
 
 func B(input string) int {
-	m := twod.MapFromString(input, twod.Ints())
+	m := twod.IntMapFromString(input, twod.Ints())
 	basins := []data{}
 
 	for _, sink := range sinks(m) {
@@ -40,19 +40,16 @@ type data struct {
 	x int
 }
 
-func sinks(m twod.Map) []data {
+func sinks(m twod.IntMap) []data {
 	upperLeft, bottomRight := m.Corners()
 	results := make([]data, 0)
 	for x := upperLeft.X; x <= bottomRight.X; x++ {
 		for y := upperLeft.Y; y <= bottomRight.Y; y++ {
 			here := twod.Vector{X: x, Y: y}
-			height := m.At(here).(int)
+			height := *m.At(here)
 			isSink := true
-			for _, p := range here.Surroundings() {
-				there, ok := m.At(p).(int)
-				if !ok {
-					continue
-				}
+			for _, p := range m.NeighborsOf(here) {
+				there := *m.At(p)
 				if height >= there {
 					isSink = false
 					break
@@ -66,7 +63,7 @@ func sinks(m twod.Map) []data {
 	return results
 }
 
-func sizeOfBasin(m twod.Map, p twod.Vector) int {
+func sizeOfBasin(m twod.IntMap, p twod.Vector) int {
 	q := list.List{}
 	q.PushBack(p)
 	size := 0
@@ -79,12 +76,12 @@ func sizeOfBasin(m twod.Map, p twod.Vector) int {
 		if !ok {
 			break
 		}
-		for _, x := range here.Surroundings() {
+		for _, x := range m.NeighborsOf(here) {
 			if _, ok := seen[x]; ok {
 				continue
 			}
-			h, ok := m.At(x).(int)
-			if ok && h < 9 {
+			h := *m.At(x)
+			if h < 9 {
 				q.PushBack(x)
 				size += 1
 				seen[x] = true
