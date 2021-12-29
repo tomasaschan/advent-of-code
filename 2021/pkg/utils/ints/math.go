@@ -12,3 +12,7 @@ func Min(i int, j int) int {
 		return j
 	}
 }
+
+func ArithmeticSum(a1, d, n int) int {
+	return n * (a1 + (a1 + n*d)) / 2
+}

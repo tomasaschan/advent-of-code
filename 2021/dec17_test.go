@@ -19,7 +19,7 @@ var _ = Describe("Dec 17", func() {
 		})
 
 		It("solves part b", func() {
-			Expect(dec17.B(input)).To(Equal(0))
+			Expect(dec17.B(input)).To(Equal(112))
 		})
 	})
 
@@ -36,8 +36,8 @@ var _ = Describe("Dec 17", func() {
 			Expect(dec17.A(input)).To(Equal(4656))
 		})
 
-		// It("solves part b", func() {
-		// 	Expect(dec17.B(input)).To(Equal(0))
-		// })
+		It("solves part b", func() {
+			Expect(dec17.B(input)).To(Equal(0))
+		})
 	})
 })
