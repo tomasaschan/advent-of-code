@@ -37,7 +37,7 @@ var _ = Describe("Dec 17", func() {
 		})
 
 		It("solves part b", func() {
-			Expect(dec17.B(input)).To(Equal(0))
+			Expect(dec17.B(input)).To(Equal(1908))
 		})
 	})
 })
