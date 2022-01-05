@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func parse1(input string) Number {
+func Parse(input string) Number {
 	n, rest := read1(input)
 
 	if rest != "" {

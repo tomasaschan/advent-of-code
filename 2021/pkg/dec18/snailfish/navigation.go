@@ -27,7 +27,6 @@ func (root *pair) at(path ...side) Number {
 }
 
 func (root *pair) setAt(n Number, path ...side) {
-	fmt.Printf("setting %v of %v to %v\n", path, root, n)
 	if p, ok := root.at(path[1:]...).(*pair); ok {
 		switch path[0] {
 		case left:
@@ -36,7 +35,6 @@ func (root *pair) setAt(n Number, path ...side) {
 			p.right = n
 		}
 	}
-	fmt.Printf("done: %v\n", root)
 }
 
 func (root *pair) neighbor(dir side, path ...side) ([]side, bool) {
@@ -77,6 +75,26 @@ func (root *pair) leftmostPairAtDepth(d int) ([]side, bool) {
 	if p, ok := root.right.(*pair); ok {
 		if rest, ok := p.leftmostPairAtDepth(d - 1); ok {
 			return append(rest, right), true
+		}
+	}
+	return nil, false
+}
+
+func (p *pair) leftmostGreaterThan(d int) ([]side, bool) {
+	if l, ok := p.left.(*leaf); ok && l.value >= 10 {
+		return []side{left}, true
+	}
+	if l, ok := p.left.(*pair); ok {
+		if p, ok := l.leftmostGreaterThan(d); ok {
+			return append(p, left), true
+		}
+	}
+	if r, ok := p.right.(*leaf); ok && r.value >= 10 {
+		return []side{right}, true
+	}
+	if r, ok := p.right.(*pair); ok {
+		if p, ok := r.leftmostGreaterThan(d); ok {
+			return append(p, right), true
 		}
 	}
 	return nil, false
