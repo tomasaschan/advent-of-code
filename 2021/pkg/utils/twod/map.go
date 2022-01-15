@@ -29,14 +29,14 @@ type terrain struct {
 
 type TerrainFunc func(rune) int
 
-func BlankIntMap(upperLeft Vector, lowerRight Vector, defaultValue int) terrain {
+func BlankIntMap(upperLeft Vector, lowerRight Vector, defaultValue int) *terrain {
 	m := map[Vector]int{}
 	for x := upperLeft.X; x <= lowerRight.X; x++ {
 		for y := upperLeft.Y; y <= lowerRight.Y; y++ {
 			m[Vector{X: x, Y: y}] = defaultValue
 		}
 	}
-	return terrain{terrain: m, upperLeft: upperLeft, lowerRight: lowerRight}
+	return &terrain{terrain: m, upperLeft: upperLeft, lowerRight: lowerRight}
 }
 
 func IntMapFromString(input string, tf func(rune) int) *terrain {
