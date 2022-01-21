@@ -3,7 +3,7 @@ package aoc2021
 import (
 	"io/ioutil"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/tomasaschan/advent-of-code-2021/pkg/dec14"

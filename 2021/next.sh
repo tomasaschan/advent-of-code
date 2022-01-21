@@ -27,7 +27,7 @@ if ! [[ -f "dec${day}_test.go" ]]; then
 import (
 	\"io/ioutil\"
 
-	. \"github.com/onsi/ginkgo\"
+	. \"github.com/onsi/ginkgo/v2\"
 	. \"github.com/onsi/gomega\"
 
 	\"github.com/tomasaschan/advent-of-code-2021/pkg/dec%s\"
