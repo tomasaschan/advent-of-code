@@ -2,6 +2,7 @@ package dec20
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/twod"
@@ -9,6 +10,7 @@ import (
 
 type image struct {
 	pixels twod.IntMap
+	rim    int
 }
 
 type algorithm []int
@@ -17,7 +19,14 @@ func (img image) enhance(algo algorithm) image {
 	ul, lr := img.pixels.Corners()
 	nul, nlr := ul.LeftOf().Above(), lr.RightOf().Below()
 
-	newPixels := twod.BlankIntMap(nul, nlr, 0)
+	var rim int
+	if img.rim == 1 {
+		rim = algo[0b111_111_111]
+	} else {
+		rim = algo[0]
+	}
+
+	newPixels := twod.BlankIntMap(nul, nlr, rim)
 
 	for y := nul.Y; y <= nlr.Y; y++ {
 		for x := nul.X; x <= nlr.X; x++ {
@@ -26,7 +35,10 @@ func (img image) enhance(algo algorithm) image {
 		}
 	}
 
-	newImg := image{pixels: newPixels}
+	newImg := image{
+		pixels: newPixels,
+		rim:    rim,
+	}
 	return newImg
 }
 
@@ -39,7 +51,7 @@ func (img image) algoIndex(x, y int) int {
 		p.LeftOf(), p, p.RightOf(),
 		p.LeftOf().Below(), p.Below(), p.RightOf().Below(),
 	} {
-		if pxl := img.pixels.At(q); pxl != nil && *pxl == 1 {
+		if pxl := img.pixels.At(q); (pxl != nil && *pxl == 1) || (pxl == nil && img.rim == 1) {
 			ix += 1 << (8 - i)
 		}
 	}
@@ -48,6 +60,9 @@ func (img image) algoIndex(x, y int) int {
 }
 
 func (img image) brightPixels() int {
+	if img.rim == 1 {
+		return math.MaxInt
+	}
 	c := 0
 	ul, lr := img.pixels.Corners()
 
@@ -65,6 +80,7 @@ func (img image) brightPixels() int {
 func (img image) String() string {
 	ul, lr := img.pixels.Corners()
 	sb := strings.Builder{}
+
 	for y := ul.Y; y <= lr.Y; y++ {
 		for x := ul.X; x <= lr.X; x++ {
 			if *img.pixels.At(twod.Vector{X: x, Y: y}) == 1 {
@@ -75,6 +91,7 @@ func (img image) String() string {
 		}
 		sb.WriteRune('\n')
 	}
+
 	return sb.String()
 }
 

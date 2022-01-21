@@ -24,7 +24,7 @@ var _ = Describe("Dec 20", func() {
 		})
 
 		It("solves part b", func() {
-			Expect(dec20.B(input)).To(Equal(0))
+			Expect(dec20.B(input)).To(Equal(3351))
 		})
 	})
 
@@ -38,11 +38,11 @@ var _ = Describe("Dec 20", func() {
 		input := string(bytes)
 
 		It("solves part a", func() {
-			Expect(dec20.A(input)).To(Equal(0))
+			Expect(dec20.A(input)).To(Equal(5275))
 		})
 
 		It("solves part b", func() {
-			Expect(dec20.B(input)).To(Equal(0))
+			Expect(dec20.B(input)).To(Equal(16482))
 		})
 	})
 })
