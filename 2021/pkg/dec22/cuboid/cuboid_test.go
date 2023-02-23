@@ -8,74 +8,147 @@ import (
 )
 
 var _ = Describe("cuboid", func() {
-	DescribeTable("overlap detection",
-		func(a, b cuboid.Cuboid, onlyA, overlap, onlyB cuboid.CuboidSet) {
-			oa, ov, ob := a.FindOverlap(b)
-			Expect(oa.String()).To(Equal(onlyA.String()), "only a")
-			Expect(ov.String()).To(Equal(overlap.String()), "overlap")
-			Expect(ob.String()).To(Equal(onlyB.String()), "only b")
+	DescribeTable(
+		"splitting",
+		func(c cuboid.Cuboid, splitPoint threed.Point, parts []cuboid.Cuboid) {
+			Expect(c.Subdivide(splitPoint)).To(ConsistOf(parts))
 		},
-		Entry("no overlap",
-			makeCuboid(-5, -5, -5, -1, -1, -1), makeCuboid(1, 1, 1, 5, 5, 5),
-			cuboid.NewSet().With(makeCuboid(-5, -5, -5, -1, -1, -1)),
-			cuboid.NewSet(),
-			cuboid.NewSet().With(makeCuboid(1, 1, 1, 5, 5, 5)),
+		Entry(
+			"split point in the inner domain",
+			cuboid.Cuboid{threed.Point{-3, -3, -3}, threed.Point{3, 3, 3}},
+			threed.Point{0, 0, 0},
+			// The octant is a number from 1 to 8:
+			//
+			//   z > 0         z < 0
+			//
+			//     y             y
+			//   2 | 1         6 | 5
+			//  ---+--- x     ---+--- x
+			//   3 | 4         7 | 8
+			[]cuboid.Cuboid{
+				{threed.Point{0, 0, 0}, threed.Point{0, 0, 0}}, // split point itself
+
+				{threed.Point{-3, 0, 0}, threed.Point{-1, 0, 0}}, // along negative x
+				{threed.Point{1, 0, 0}, threed.Point{3, 0, 0}},   // along positive x
+				{threed.Point{0, -3, 0}, threed.Point{0, -1, 0}}, // along negative y
+				{threed.Point{0, 1, 0}, threed.Point{0, 3, 0}},   // along positive y
+				{threed.Point{0, 0, -3}, threed.Point{0, 0, -1}}, // along negative z
+				{threed.Point{0, 0, 1}, threed.Point{0, 0, 3}},   // along positive z
+
+				{threed.Point{0, -3, 1}, threed.Point{0, -1, 3}},   //plane in -y/+z
+				{threed.Point{0, 1, 1}, threed.Point{0, 3, 3}},     //plane in +y/+z
+				{threed.Point{0, -3, -3}, threed.Point{0, -1, -1}}, //plane in -y/-z
+				{threed.Point{0, 1, -3}, threed.Point{0, 3, -1}},   //plane in +y/-z
+				{threed.Point{-3, 0, 1}, threed.Point{-1, 0, 3}},   // plane in -x/+z
+				{threed.Point{1, 0, 1}, threed.Point{3, 0, 3}},     // plane in +x/+z
+				{threed.Point{-3, 0, -3}, threed.Point{-1, 0, -1}}, // plane in -x/-z
+				{threed.Point{1, 0, -3}, threed.Point{3, 0, -1}},   // plane in +x/-z
+				{threed.Point{-3, 1, 0}, threed.Point{-1, 3, 0}},   // plane in -x/+y
+				{threed.Point{1, 1, 0}, threed.Point{3, 3, 0}},     // plane in +x/+y
+				{threed.Point{-3, -3, 0}, threed.Point{-1, -1, 0}}, // plane in -x/-y
+				{threed.Point{1, -3, 0}, threed.Point{3, -1, 0}},   // plane in +x/-y
+
+				{threed.Point{1, 1, 1}, threed.Point{3, 3, 3}},       // octant 1
+				{threed.Point{-3, 1, 1}, threed.Point{-1, 3, 3}},     // octant 2
+				{threed.Point{-3, -3, 1}, threed.Point{-1, -1, 3}},   // octant 3
+				{threed.Point{1, -3, 1}, threed.Point{3, -1, 3}},     // octant 4
+				{threed.Point{1, 1, -3}, threed.Point{3, 3, -1}},     // octant 5
+				{threed.Point{-3, 1, -3}, threed.Point{-1, 3, -1}},   // octant 6
+				{threed.Point{-3, -3, -3}, threed.Point{-1, -1, -1}}, // octant 7
+				{threed.Point{1, -3, -3}, threed.Point{3, -1, -1}},   // octant 8
+			},
 		),
-		Entry("100%% overlap",
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet(),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
+		Entry(
+			"split point on a side",
+			cuboid.Cuboid{threed.Point{-3, 0, -3}, threed.Point{3, 3, 3}},
+			threed.Point{0, 0, 0},
+			// The octant is a number from 1 to 8:
+			//
+			//   z > 0         z < 0
+			//
+			//     y             y
+			//   2 | 1         6 | 5
+			//  ---+--- x     ---+--- x
+			//   3 | 4         7 | 8
+			[]cuboid.Cuboid{
+				{threed.Point{0, 0, 0}, threed.Point{0, 0, 0}}, // split point itself
+
+				{threed.Point{-3, 0, 0}, threed.Point{-1, 0, 0}}, // along negative x
+				{threed.Point{1, 0, 0}, threed.Point{3, 0, 0}},   // along positive x
+				{threed.Point{0, 1, 0}, threed.Point{0, 3, 0}},   // along positive y
+				{threed.Point{0, 0, -3}, threed.Point{0, 0, -1}}, // along negative z
+				{threed.Point{0, 0, 1}, threed.Point{0, 0, 3}},   // along positive z
+
+				{threed.Point{0, 1, 1}, threed.Point{0, 3, 3}},     //plane in +y/+z
+				{threed.Point{0, 1, -3}, threed.Point{0, 3, -1}},   //plane in +y/-z
+				{threed.Point{-3, 0, 1}, threed.Point{-1, 0, 3}},   // plane in -x/+z
+				{threed.Point{1, 0, 1}, threed.Point{3, 0, 3}},     // plane in +x/+z
+				{threed.Point{-3, 0, -3}, threed.Point{-1, 0, -1}}, // plane in -x/-z
+				{threed.Point{1, 0, -3}, threed.Point{3, 0, -1}},   // plane in +x/-z
+				{threed.Point{-3, 1, 0}, threed.Point{-1, 3, 0}},   // plane in -x/+y
+				{threed.Point{1, 1, 0}, threed.Point{3, 3, 0}},     // plane in +x/+y
+
+				{threed.Point{1, 1, 1}, threed.Point{3, 3, 3}},     // octant 1
+				{threed.Point{-3, 1, 1}, threed.Point{-1, 3, 3}},   // octant 2
+				{threed.Point{1, 1, -3}, threed.Point{3, 3, -1}},   // octant 5
+				{threed.Point{-3, 1, -3}, threed.Point{-1, 3, -1}}, // octant 6
+			},
 		),
-		Entry("a behind b",
-			makeCuboid(-1, 0, 0, 3, 3, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(-1, 0, 0, -1, 3, 3)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
+		Entry(
+			"split point on an edge",
+			cuboid.Cuboid{threed.Point{-3, 0, 0}, threed.Point{3, 3, 3}},
+			threed.Point{0, 0, 0},
+			// The octant is a number from 1 to 8:
+			//
+			//   z > 0         z < 0
+			//
+			//     y             y
+			//   2 | 1         6 | 5
+			//  ---+--- x     ---+--- x
+			//   3 | 4         7 | 8
+			[]cuboid.Cuboid{
+				{threed.Point{0, 0, 0}, threed.Point{0, 0, 0}}, // split point itself
+
+				{threed.Point{-3, 0, 0}, threed.Point{-1, 0, 0}}, // along negative x
+				{threed.Point{1, 0, 0}, threed.Point{3, 0, 0}},   // along positive x
+				{threed.Point{0, 1, 0}, threed.Point{0, 3, 0}},   // along positive y
+				{threed.Point{0, 0, 1}, threed.Point{0, 0, 3}},   // along positive z
+
+				{threed.Point{0, 1, 1}, threed.Point{0, 3, 3}},   //plane in +y/+z
+				{threed.Point{-3, 0, 1}, threed.Point{-1, 0, 3}}, // plane in -x/+z
+				{threed.Point{1, 0, 1}, threed.Point{3, 0, 3}},   // plane in +x/+z
+				{threed.Point{-3, 1, 0}, threed.Point{-1, 3, 0}}, // plane in -x/+y
+				{threed.Point{1, 1, 0}, threed.Point{3, 3, 0}},   // plane in +x/+y
+
+				{threed.Point{1, 1, 1}, threed.Point{3, 3, 3}},   // octant 1
+				{threed.Point{-3, 1, 1}, threed.Point{-1, 3, 3}}, // octant 2
+			},
 		),
-		Entry("a in front of b",
-			makeCuboid(0, 0, 0, 4, 3, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(4, 0, 0, 4, 3, 3)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
-		),
-		Entry("a left of b",
-			makeCuboid(0, -1, 0, 3, 3, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(0, -1, 0, 3, -1, 3)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
-		),
-		Entry("a right of b",
-			makeCuboid(0, 0, 0, 3, 4, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(0, 4, 0, 3, 4, 3)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
-		),
-		Entry("a below b",
-			makeCuboid(0, 0, -1, 3, 3, 3),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(0, 0, -1, 3, 3, -1)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
-		),
-		Entry("a above b",
-			makeCuboid(0, 0, 0, 3, 3, 4),
-			makeCuboid(0, 0, 0, 3, 3, 3),
-			cuboid.NewSet().With(makeCuboid(0, 0, 4, 3, 3, 4)),
-			cuboid.NewSet().With(makeCuboid(0, 0, 0, 3, 3, 3)),
-			cuboid.NewSet(),
+		Entry(
+			"split point on a corner",
+			cuboid.Cuboid{threed.Point{0, 0, 0}, threed.Point{3, 3, 3}},
+			threed.Point{0, 0, 0},
+			// The octant is a number from 1 to 8:
+			//
+			//   z > 0         z < 0
+			//
+			//     y             y
+			//   2 | 1         6 | 5
+			//  ---+--- x     ---+--- x
+			//   3 | 4         7 | 8
+			[]cuboid.Cuboid{
+				{threed.Point{0, 0, 0}, threed.Point{0, 0, 0}}, // split point itself
+
+				{threed.Point{1, 0, 0}, threed.Point{3, 0, 0}}, // along positive x
+				{threed.Point{0, 1, 0}, threed.Point{0, 3, 0}}, // along positive y
+				{threed.Point{0, 0, 1}, threed.Point{0, 0, 3}}, // along positive z
+
+				{threed.Point{0, 1, 1}, threed.Point{0, 3, 3}}, //plane in +y/+z
+				{threed.Point{1, 0, 1}, threed.Point{3, 0, 3}}, // plane in +x/+z
+				{threed.Point{1, 1, 0}, threed.Point{3, 3, 0}}, // plane in +x/+y
+
+				{threed.Point{1, 1, 1}, threed.Point{3, 3, 3}}, // octant 1
+			},
 		),
 	)
 })
-
-func makeCuboid(x0, y0, z0, x1, y1, z1 int) cuboid.Cuboid {
-	defer GinkgoRecover()
-	c, ok := cuboid.NewCuboid(&threed.Point{X: x0, Y: y0, Z: z0}, &threed.Point{X: x1, Y: y1, Z: z1})
-	Expect(ok).To(BeTrue())
-	return c
-}

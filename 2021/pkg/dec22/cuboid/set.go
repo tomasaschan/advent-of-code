@@ -1,64 +1,44 @@
 package cuboid
 
 import (
-	"fmt"
 	"strings"
 )
 
-type cuboidSet struct {
-	m map[string]Cuboid
+type CuboidSet []Cuboid
+
+func EmptySet() CuboidSet {
+	return CuboidSet([]Cuboid{})
 }
 
-type CuboidSet interface {
-	Add(Cuboid)
-	With(Cuboid) CuboidSet
-	Remove(Cuboid)
-	Without(Cuboid) CuboidSet
-	Contains(Cuboid) bool
-	fmt.Stringer
-}
-
-func NewSet() CuboidSet {
-	return &cuboidSet{m: map[string]Cuboid{}}
-}
-
-func (s *cuboidSet) Add(c Cuboid) {
-	s.m[c.String()] = c
-}
-
-func (s *cuboidSet) Remove(c Cuboid) {
-	delete(s.m, c.String())
-}
-
-func (s *cuboidSet) Contains(c Cuboid) bool {
-	_, ok := s.m[c.String()]
-	return ok
-}
-
-func (s cuboidSet) With(c Cuboid) CuboidSet {
-	result := NewSet()
-	for _, v := range s.m {
-		result.Add(v)
+func (s CuboidSet) Size() int {
+	z := 0
+	for _, c := range s {
+		z += c.Size()
 	}
-	result.Add(c)
-	return result
+	return z
 }
 
-func (s cuboidSet) Without(c Cuboid) CuboidSet {
-	result := NewSet()
-	for _, v := range s.m {
-		if v != c {
-			result.Add(v)
+func (s CuboidSet) IsEmpty() bool {
+	for _, c := range s {
+		if c.Size() != 0 {
+			return false
 		}
 	}
-	return result
+
+	return true
 }
 
-func (s cuboidSet) String() string {
+func (s CuboidSet) With(c CuboidSet) CuboidSet {
+	onlyNew := EmptySet()
+
+	return append(c, onlyNew...)
+}
+
+func (s CuboidSet) String() string {
 	elements := make([]string, 0)
 
-	for k := range s.m {
-		elements = append(elements, k)
+	for _, k := range s {
+		elements = append(elements, k.String())
 	}
 
 	return "{" + strings.Join(elements, ", ") + "}"
