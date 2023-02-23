@@ -1,17 +1,63 @@
-package dec15
+package dec15_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/tomasaschan/advent-of-code-2021/pkg/dec15"
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/twod"
 )
 
+var _ = Describe("Dec 15", func() {
+
+	Context("sample", func() {
+		input := `1163751742
+1381373672
+2136511328
+3694931569
+7463417111
+1319128137
+1359912421
+3125421639
+1293138521
+2311944581
+`
+
+		It("solves part a", func() {
+			Expect(dec15.A(input)).To(Equal(40))
+		})
+
+		It("solves part b", func() {
+			Expect(dec15.B(input)).To(Equal(315))
+		})
+	})
+
+	Context("real input", func() {
+		bytes, err := ioutil.ReadFile("../../input/dec15.txt")
+
+		It("reads input OK", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		input := string(bytes)
+
+		It("solves part a", func() {
+			Expect(dec15.A(input)).To(Equal(386))
+		})
+
+		It("solves part b", func() {
+			Expect(dec15.B(input)).To(Equal(2806))
+		})
+	})
+})
+
 var _ = Describe("Expanded maps", func() {
 	m := twod.IntMapFromString(input, twod.Ints())
-	e := expanded{m: m, nx: 5, ny: 5}
+	e := dec15.Expanded{M: m, Nx: 5, Ny: 5}
 
 	Describe("calculating values", func() {
 		It("in the original section", func() {
@@ -48,10 +94,10 @@ var _ = Describe("Expanded maps", func() {
 })
 
 func expand(input string) string {
-	xp := expanded{
-		m:  twod.IntMapFromString(input, twod.Ints()),
-		nx: 5,
-		ny: 5,
+	xp := dec15.Expanded{
+		M:  twod.IntMapFromString(input, twod.Ints()),
+		Nx: 5,
+		Ny: 5,
 	}
 
 	ul, lr := xp.Corners()
@@ -131,3 +177,8 @@ const (
 67554889357866599146897761125791887223681299833479
 `
 )
+
+func TestDec15(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Dec 15")
+}

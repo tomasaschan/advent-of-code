@@ -1,7 +1,8 @@
-package aoc2021
+package dec8_test
 
 import (
 	"io/ioutil"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -32,7 +33,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 	})
 
 	Context("real input", func() {
-		bytes, err := ioutil.ReadFile("input/dec8.txt")
+		bytes, err := ioutil.ReadFile("../../input/dec8.txt")
 		Expect(err).NotTo(HaveOccurred())
 		input := string(bytes)
 
@@ -45,3 +46,8 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 		})
 	})
 })
+
+func TestDec8(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Dec 8")
+}

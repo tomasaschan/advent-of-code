@@ -1,7 +1,8 @@
-package aoc2021
+package dec14_test
 
 import (
 	"io/ioutil"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,7 +42,7 @@ CN -> C
 	})
 
 	Context("real input", func() {
-		bytes, err := ioutil.ReadFile("input/dec14.txt")
+		bytes, err := ioutil.ReadFile("../../input/dec14.txt")
 
 		It("reads input OK", func() {
 			Expect(err).NotTo(HaveOccurred())
@@ -58,3 +59,8 @@ CN -> C
 		})
 	})
 })
+
+func TestDec14(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Dec 14")
+}

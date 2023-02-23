@@ -1,7 +1,8 @@
-package aoc2021
+package dec1_test
 
 import (
 	"os"
+	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -34,7 +35,7 @@ var _ = Describe("Dec 1", func() {
 	})
 
 	Context("real input", func() {
-		f, err := os.Open("input/dec1.txt")
+		f, err := os.Open("../../input/dec1.txt")
 		Expect(err).NotTo(HaveOccurred())
 		input, err := utils.ReadInput(f)
 		Expect(err).NotTo(HaveOccurred())
@@ -48,3 +49,8 @@ var _ = Describe("Dec 1", func() {
 
 	})
 })
+
+func TestDec1(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Dec 1")
+}
