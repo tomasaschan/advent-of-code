@@ -1,6 +1,7 @@
 package dec15
 
 import (
+	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/collections"
 	"github.com/tomasaschan/advent-of-code-2021/pkg/utils/twod"
 )
 
@@ -17,22 +18,19 @@ func B(input string) int {
 
 func costOfBestPath(m twod.IntMap) int {
 	_, lr := m.Corners()
-	q := twod.PriorityQueue()
+	q := collections.NewPriorityQueue[twod.Point, int]()
 	seen := map[twod.Vector]bool{}
 
 	q.Push(twod.Vector{X: 0, Y: 0}, 0)
 	i := 0
-	for i < 1e6 {
+	for !q.Empty() {
 		p, risk := q.Pop()
 
-		if p == nil {
-			return -1
-		}
-		if *p == lr {
+		if p == lr {
 			return risk
 		}
 
-		for _, n := range m.NeighborsOf(*p) {
+		for _, n := range m.NeighborsOf(p) {
 			if _, ok := seen[n]; !ok {
 				seen[n] = true
 				q.Push(n, risk+*m.At(n))

@@ -21,11 +21,12 @@ else
     echo "pkg/dec$day/solve.go already exists; not overwriting"
 fi
 
-if ! [[ -f "dec${day}_test.go" ]]; then
-    printf "package aoc2021
+if ! [[ -f "pkg/dec${day}/solve_test.go" ]]; then
+    printf "package dec%s_test
 
 import (
 	\"io/ioutil\"
+	\"testing\"
 
 	. \"github.com/onsi/ginkgo/v2\"
 	. \"github.com/onsi/gomega\"
@@ -47,7 +48,7 @@ var _ = Describe(\"Dec %s\", func() {
 	})
 
 	Context(\"real input\", func() {
-		bytes, err := ioutil.ReadFile(\"input/dec%s.txt\")
+		bytes, err := ioutil.ReadFile(\"../../input/dec%s.txt\")
 		
 		It(\"reads input OK\", func() {
 			Expect(err).NotTo(HaveOccurred())
@@ -64,7 +65,12 @@ var _ = Describe(\"Dec %s\", func() {
 		})
 	})
 })
-" "$day" "$day" "$day" "$day" "$day" "$day" "$day" > "dec${day}_test.go"
+
+func TestDec22(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, \"Dec %s\")
+}
+" "$day" "$day" "$day" "$day" "$day" "$day" "$day" "$day" "$day" > "pkg/dec${day}/solve_test.go"
 else
-    echo "dec${day}_test.go already exists; not overwriting"
+    echo "pkg/dec${day}/solve_test.go already exists; not overwriting"
 fi

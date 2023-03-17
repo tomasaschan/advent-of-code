@@ -39,7 +39,7 @@ func BlankIntMap(upperLeft Vector, lowerRight Vector, defaultValue int) *terrain
 	return &terrain{terrain: m, upperLeft: upperLeft, lowerRight: lowerRight}
 }
 
-func IntMapFromString(input string, tf func(rune) int) *terrain {
+func IntMapFromString(input string, tf TerrainFunc) *terrain {
 	m := map[Vector]int{}
 
 	maxx, maxy := 0, 0
