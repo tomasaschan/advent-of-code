@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>_2</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="solution-2.fs" />
+    <Compile Include="runner2.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\utils\utils.fsproj" />
+  </ItemGroup>
+</Project>
