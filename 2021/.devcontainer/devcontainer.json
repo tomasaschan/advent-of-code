@@ -1,0 +1,17 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.192.0/containers/ubuntu
+{
+    "name": "aoc-2021",
+    "image": "ghcr.io/tomasaschan/vscode-devcontainers/golang:latest",
+    // Set *default* container specific settings.json values on container create.
+    "settings": {
+        "files.autoSave": "afterDelay",
+        "editor.tabSize": 2,
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "golang.go",
+    ],
+    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "dev"
+}
