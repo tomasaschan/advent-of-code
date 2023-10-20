@@ -1,0 +1,37 @@
+resolver: lts-16.15
+packages:
+  - utils
+  - solvers/p01
+  - solvers/p02
+  - solvers/p03
+  - solvers/p04
+  - solvers/p05
+  - solvers/p06
+  - solvers/p07
+  - solvers/p08
+  - solvers/p09
+  - solvers/p10
+  - solvers/p11
+  - solvers/p12
+  - solvers/p13
+  - solvers/p14
+  - solvers/p15
+  - solvers/p16
+  - solvers/p17
+  - solvers/p18
+  - solvers/p19
+  - solvers/p20
+  - solvers/p21
+  - solvers/p22
+  - solvers/p23
+  - solvers/p24
+  - solvers/p25
+  # PROBLEM
+extra-deps:
+  - graphite-0.9.8.0
+  # - graphviz-2999.20.0.3
+  - parsec3-numbers-0.1.0
+  - PSQueue-1.1.0.1
+  - Unique-0.4.7.8
+flags: {}
+extra-package-dbs: []

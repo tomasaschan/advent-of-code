@@ -1,0 +1,9 @@
+{
+  "image": "docker.pkg.github.com/tomasaschan/vscode-devcontainers/haskell",
+  "mounts": [
+    "source=aoc-2018-stack,target=/home/dev/.stack,type=volume"
+  ],
+  "extensions": [
+    "haskell.haskell"
+  ]
+}
