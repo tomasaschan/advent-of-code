@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Dec1.fs" />
+    <Compile Include="Dec2.fs" />
+    <Compile Include="Dec3.fs" />
+    <Compile Include="Dec4.fs" />
+    <Compile Include="Dec5.fs" />
+    <Compile Include="Dec6.fs" />
+    <Compile Include="Dec7.fs" />
+    <Compile Include="Dec8.fs" />
+    <Compile Include="Dec9.fs" />
+    <Compile Include="Dec10.fs" />
+    <Compile Include="Dec11.fs" />
+    <Compile Include="Dec12.fs" />
+    <Compile Include="Dec13.fs" />
+    <Compile Include="Dec14.fs" />
+    <Compile Include="Dec15.fs" />
+    <Compile Include="Dec16.fs" />
+    <Compile Include="Dec17.fs" />
+    <Compile Include="Dec18.fs" />
+    <Compile Include="Dec19.fs" />
+    <Compile Include="Dec20.fs" />
+    <Compile Include="Dec21.fs" />
+    <Compile Include="Dec22.fs" />
+    <Compile Include="Dec23.fs" />
+    <Compile Include="Dec24.fs" />
+    <Compile Include="Dec25.fs" />
+    <Compile Include="Runner.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\utils\utils.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
+  </ItemGroup>
+</Project>

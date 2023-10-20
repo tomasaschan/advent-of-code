@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Debugging.fs" />
+    <Compile Include="Set.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="Option.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="Parse.fs" />
+    <Compile Include="List.fs" />
+    <Compile Include="Queue.fs" />
+    <Compile Include="Regex.fs" />
+    <Compile Include="Knot.fs" />
+  </ItemGroup>
+
+</Project>
