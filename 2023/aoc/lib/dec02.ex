@@ -60,8 +60,7 @@ defmodule Dec02 do
   """
   def a(input) do
     input
-    |> String.split("\n")
-    |> Enum.filter(fn s -> s != "" end)
+    |> String.split("\n", trim: true)
     |> Enum.map(fn game -> possible(game, %{red: 12, green: 13, blue: 14}) end)
     |> Enum.filter(fn {_, possible} -> possible end)
     |> Enum.map(fn {id, _} -> id end)
@@ -109,8 +108,7 @@ defmodule Dec02 do
   """
   def b(input) do
     input
-    |> String.split("\n")
-    |> Enum.filter(fn s -> s != "" end)
+    |> String.split("\n", trim: true)
     |> Enum.map(&minimize/1)
     |> Enum.map(&power/1)
     |> Enum.sum()

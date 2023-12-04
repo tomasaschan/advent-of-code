@@ -87,8 +87,7 @@ defmodule Dec01 do
 
   def solve(input, parser) do
     input
-    |> String.split("\n")
-    |> Enum.filter(fn line -> line != "" end)
+    |> String.split("\n", trim: true)
     |> Enum.map(fn line -> parser.(line) end)
     |> Enum.sum()
   end
