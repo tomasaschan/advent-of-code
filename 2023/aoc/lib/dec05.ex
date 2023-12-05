@@ -115,4 +115,24 @@ defmodule Dec05 do
     |> Enum.map(fn seed -> location(:seed, seed, maps) end)
     |> Enum.min()
   end
+
+  @doc """
+  iex> Dec05.seeds([79, 14, 55, 13])
+  [79..92, 55..67] |> Enum.flat_map(fn x -> x end) |> List.to_tuple()
+  """
+  def seeds(list) do
+    list
+    |> Enum.chunk_every(2)
+    |> Enum.map(fn [x, n] -> x..(x + n - 1) end)
+    |> Enum.flat_map(fn x -> x end)
+    |> List.to_tuple()
+  end
+
+  def b(input) do
+    maps = parse(input)
+
+    seeds(maps[:seeds])
+    |> Enum.map(fn seed -> location(:seed, seed, maps) end)
+    |> Enum.min()
+  end
 end
