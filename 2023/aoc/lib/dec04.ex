@@ -27,24 +27,26 @@ defmodule Dec04 do
   end
 
   @doc """
-  iex> Dec04.points({1, [41, 48, 83, 86, 17], [83, 86, 6, 31, 17, 9, 48, 53]})
-  8
-  iex> Dec04.points({2, [13, 32, 20, 16, 61], [61, 30, 68, 82, 17, 32, 24, 19]})
+  iex> Dec04.winning_count({1, [41, 48, 83, 86, 17], [83, 86, 6, 31, 17, 9, 48, 53]})
+  4
+  iex> Dec04.winning_count({2, [13, 32, 20, 16, 61], [61, 30, 68, 82, 17, 32, 24, 19]})
   2
-  iex> Dec04.points({3, [1, 21, 53, 59, 44], [69, 82, 63, 72, 16, 21, 14, 1]})
+  iex> Dec04.winning_count({3, [1, 21, 53, 59, 44], [69, 82, 63, 72, 16, 21, 14, 1]})
   2
-  iex> Dec04.points({4, [41, 92, 73, 84, 69], [59, 84, 76, 51, 58, 5, 54, 83]})
+  iex> Dec04.winning_count({4, [41, 92, 73, 84, 69], [59, 84, 76, 51, 58, 5, 54, 83]})
   1
-  iex> Dec04.points({5, [87, 83, 26, 28, 32], [88, 30, 70, 12, 93, 22, 82, 36]})
+  iex> Dec04.winning_count({5, [87, 83, 26, 28, 32], [88, 30, 70, 12, 93, 22, 82, 36]})
   0
-  iex> Dec04.points({6, [31, 18, 13, 56, 72], [74, 77, 10, 23, 35, 67, 36, 11]})
+  iex> Dec04.winning_count({6, [31, 18, 13, 56, 72], [74, 77, 10, 23, 35, 67, 36, 11]})
   0
   """
-  def points({_, winning, have}) do
-    winning_count = MapSet.new(winning) |> MapSet.intersection(MapSet.new(have)) |> MapSet.size()
+  def winning_count({_, winning, have}) do
+    MapSet.new(winning) |> MapSet.intersection(MapSet.new(have)) |> MapSet.size()
+  end
 
-    if winning_count > 0 do
-      2 ** (winning_count - 1)
+  def points(w) do
+    if w > 0 do
+      2 ** (w - 1)
     else
       0
     end
@@ -58,7 +60,45 @@ defmodule Dec04 do
     input
     |> String.split("\n", trim: true)
     |> Enum.map(&parse/1)
+    |> Enum.map(&winning_count/1)
     |> Enum.map(&points/1)
     |> Enum.sum()
+  end
+
+  @doc """
+  iex> Dec04.b("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53\\nCard 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19\\nCard 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1\\nCard 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83\\nCard 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36\\nCard 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11")
+  30
+  """
+  def b(input) do
+    deck =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(&parse/1)
+      |> Enum.map(fn card -> {1, card} end)
+
+    step_b(deck, 0)
+  end
+
+  def step_b(deck, index) do
+    cond do
+      index >= length(deck) ->
+        deck |> Enum.map(fn {c, _} -> c end) |> Enum.sum()
+
+      true ->
+        {n, c} = deck |> Enum.at(index)
+        step_b(add_cards(deck, index, winning_count(c), n), index + 1)
+    end
+  end
+
+  def add_cards(deck, from, n_steps, n_to_add) do
+    deck
+    |> Enum.with_index()
+    |> Enum.map(fn {{n, c}, i} ->
+      cond do
+        i <= from -> {n, c}
+        i > from + n_steps -> {n, c}
+        true -> {n + n_to_add, c}
+      end
+    end)
   end
 end
