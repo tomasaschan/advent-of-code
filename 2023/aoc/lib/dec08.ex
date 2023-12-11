@@ -12,22 +12,15 @@ defmodule Dec08 do
     {instructions |> String.split("", trim: true), map}
   end
 
-  def follow(instructions, map, pos, steps \\ 0)
-  def follow(_, _, "ZZZ", steps), do: steps
+  def done_a(pos), do: pos == "ZZZ"
+  def done_b(pos), do: String.ends_with?(pos, "Z")
 
-  def follow(instructions, map, pos, steps) do
-    instruction = instructions |> Enum.at(rem(steps, length(instructions)))
-    {l, r} = map[pos]
-
-    follow(
-      instructions,
-      map,
-      case instruction do
-        "L" -> l
-        "R" -> r
-      end,
-      steps + 1
-    )
+  def follow(instructions, map, pos, done, steps) do
+    if done.(pos) do
+      steps
+    else
+      follow(instructions, map, step(map, instructions, pos, steps), done, steps + 1)
+    end
   end
 
   @doc """
@@ -53,51 +46,23 @@ defmodule Dec08 do
   def a(input) do
     {instructions, map} = parse(input)
 
-    follow(instructions, map, "AAA")
+    follow(instructions, map, "AAA", &done_a/1, 0)
   end
 
-  def follow_all(instructions, maps, poss, steps \\ 0)
-  def follow_all(_, _, _, 10), do: 10
+  def step(map, instructions, pos, steps) do
+    {l, r} = map[pos]
 
-  def follow_all(instructions, maps, poss, steps) do
-    if poss |> Enum.all?(fn pos -> String.ends_with?(pos, "Z") end) do
-      steps
-    else
-      nexts = poss |> Enum.map(fn pos -> follow(instructions, maps, pos, steps) end)
-      IO.puts("nexts: #{inspect(nexts)}, steps: #{steps}")
-      follow_all(instructions, maps, nexts, steps + 1)
+    case instructions |> Enum.at(rem(steps, length(instructions))) do
+      "L" -> l
+      "R" -> r
     end
-  end
-
-  defmodule State do
-    defstruct(pos: "AAA", iptr: 0, steps: 0)
-  end
-
-  defmodule Input do
-    @enforce_keys [:map, :instructions]
-    defstruct [:map, :instructions]
-  end
-
-  def step(%Input{map: map, instructions: instructions}, state) do
-    instruction = instructions |> Enum.at(rem(state.iptr, length(instructions)))
-    {l, r} = map[state.pos]
-
-    %State{
-      iptr: rem(state.iptr + 1, length(instructions)),
-      steps: state.steps + 1,
-      pos:
-        case instruction do
-          "L" -> l
-          "R" -> r
-        end
-    }
   end
 
   def find_cycle(map, instructions, pos, seen \\ %{}, steps \\ 0, emit_seen \\ false) do
     iptr = rem(steps, length(instructions))
 
     cond do
-      Map.has_key?(seen, {pos, iptr}) ->
+      Map.has_key?(seen, {pos, iptr}) && done_b(pos) ->
         first = seen[{pos, iptr}]
 
         if emit_seen do
@@ -106,18 +71,21 @@ defmodule Dec08 do
           {pos, first, steps}
         end
 
-      true ->
-        nxt =
-          step(%Input{map: map, instructions: instructions}, %State{
-            pos: pos,
-            iptr: iptr,
-            steps: steps
-          })
-
+      done_b(pos) ->
         find_cycle(
           map,
           instructions,
-          nxt.pos,
+          step(map, instructions, pos, steps),
+          Map.put(seen, {pos, iptr}, steps),
+          steps + 1,
+          emit_seen
+        )
+
+      true ->
+        find_cycle(
+          map,
+          instructions,
+          step(map, instructions, pos, steps),
           Map.put(seen, {pos, iptr}, steps),
           steps + 1,
           emit_seen
@@ -126,8 +94,7 @@ defmodule Dec08 do
   end
 
   @doc """
-  @tag timeout: :infinity
-  iex>Dec08.b("LR
+  iex> Dec08.b("LR
   ...>
   ...>11A = (11B, XXX)
   ...>11B = (XXX, 11Z)
@@ -145,6 +112,8 @@ defmodule Dec08 do
 
     starts = map |> Map.keys() |> Enum.filter(fn k -> k |> String.ends_with?("A") end)
 
-    follow_all(instructions, map, starts)
+    starts
+    |> Enum.map(fn start -> follow(instructions, map, start, &done_b/1, 0) end)
+    |> Enum.reduce(&ElixirMath.lcm/2)
   end
 end
