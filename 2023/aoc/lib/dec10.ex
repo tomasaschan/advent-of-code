@@ -72,33 +72,6 @@ defmodule Dec10 do
     end
   end
 
-  def start_and_neighbors(map) do
-    start = start(map)
-
-    neighbors =
-      [
-        {toward(:n, start), 1},
-        {toward(:s, start), 1},
-        {toward(:e, start), 1},
-        {toward(:w, start), 1}
-      ]
-      |> Enum.filter(fn {pos, _} ->
-        case Map.get(map, pos) do
-          nil ->
-            false
-
-          nexts ->
-            nexts
-            |> Enum.map(fn dir ->
-              toward(dir, pos)
-            end)
-            |> Enum.member?(start)
-        end
-      end)
-
-    {start, neighbors}
-  end
-
   @doc """
   iex> Dec10.a(".....\\n.S-7.\\n.|.|.\\n.L-J.\\n.....\\n")
   4
@@ -109,13 +82,9 @@ defmodule Dec10 do
   """
   def a(input) do
     map = parse(input)
-    {start, neighbors} = start_and_neighbors(map)
+    start = start(map)
 
-    explore(
-      map,
-      neighbors,
-      %{start => 0}
-    )
+    explore(Map.put(map, start, deduce_start_pipe_type(start, map)), [{start, 0}], %{})
     |> Map.values()
     |> Enum.max()
   end
@@ -149,5 +118,109 @@ defmodule Dec10 do
     end)
     |> Enum.join("\n")
     |> IO.puts()
+  end
+
+  @doc """
+  iex> Dec10.b("...........
+  ...>.S-------7.
+  ...>.|F-----7|.
+  ...>.||.....||.
+  ...>.||.....||.
+  ...>.|L-7.F-J|.
+  ...>.|..|.|..|.
+  ...>.L--J.L--J.
+  ...>...........")
+  4
+
+  iex> Dec10.b(".F----7F7F7F7F-7....
+  ...>.|F--7||||||||FJ....
+  ...>.||.FJ||||||||L7....
+  ...>FJL7L7LJLJ||LJ.L-7..
+  ...>L--J.L7...LJS7F-7L7.
+  ...>....F-J..F7FJ|L7L7L7
+  ...>....L7.F7||L7|.L7L7|
+  ...>.....|FJLJ|FJ|F7|.LJ
+  ...>....FJL-7.||.||||...
+  ...>....L---J.LJ.LJLJ...")
+  8
+
+  """
+  def b(input) do
+    map = parse(input)
+    start = start(map)
+    map = Map.put(map, start, deduce_start_pipe_type(start, map))
+    tunnels = explore(map, [{start, 0}], %{})
+
+    {xs, ys} =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(fn line -> String.length(line) end)
+      |> Enum.reduce({0, 0}, fn x, {xs, ys} -> {max(x, xs), ys + 1} end)
+
+    0..ys
+    |> Enum.map(fn y ->
+      0..xs
+      |> Enum.map(fn x ->
+        if Map.has_key?(tunnels, {x, y}) do
+          Map.get(map, {x, y}, [])
+          |> then(fn ends -> {x, y, ends |> Enum.member?(:n), ends |> Enum.member?(:s)} end)
+        else
+          {x, y, false, false}
+        end
+      end)
+      |> Enum.reduce({{MapSet.new(), false}, {MapSet.new(), false}}, fn {x, y, crosses_north,
+                                                                         crosses_south},
+                                                                        {{inside_n, is_inside_n},
+                                                                         {inside_s, is_inside_s}} ->
+        {case {is_inside_n, crosses_north} do
+           {true, true} -> {inside_n, false}
+           {true, false} -> {MapSet.put(inside_n, {x, y}), true}
+           {false, true} -> {inside_n, true}
+           {false, false} -> {inside_n, false}
+         end,
+         case {is_inside_s, crosses_south} do
+           {true, true} -> {inside_s, false}
+           {true, false} -> {MapSet.put(inside_s, {x, y}), true}
+           {false, true} -> {inside_s, true}
+           {false, false} -> {inside_s, false}
+         end}
+      end)
+    end)
+    |> Enum.map(fn {{inside_n, _}, {inside_s, _}} -> MapSet.intersection(inside_n, inside_s) end)
+    |> Enum.reduce(MapSet.new(), &MapSet.union/2)
+    |> then(&MapSet.size/1)
+  end
+
+  def deduce_start_pipe_type(start, map) do
+    [{:n, :s}, {:s, :n}, {:e, :w}, {:w, :e}]
+    |> Enum.filter(fn {t, b} -> Map.get(map, toward(t, start), []) |> Enum.member?(b) end)
+    |> Enum.map(fn {t, _} -> t end)
+  end
+
+  def debug_b(input, result) do
+    {xs, ys} =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(fn line -> String.length(line) end)
+      |> Enum.reduce({0, 0}, fn x, {xs, ys} -> {max(x, xs), ys + 1} end)
+
+    map = parse(input)
+
+    0..ys
+    |> Enum.map(fn y ->
+      0..xs
+      |> Enum.map(fn x ->
+        cond do
+          Map.has_key?(result, {x, y}) -> "I"
+          Map.get(map, {x, y}, []) -> "#"
+          true -> "."
+        end
+      end)
+      |> Enum.join()
+    end)
+    |> Enum.join("\n")
+    |> IO.puts()
+
+    0
   end
 end
