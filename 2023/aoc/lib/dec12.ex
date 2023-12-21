@@ -8,12 +8,12 @@ defmodule Dec12 do
   ...>?###???????? 3,2,1
   ...>")
   [
-    {["?", "?", "?", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3]},
-    {[".", "?", "?", ".", ".", "?", "?", ".", ".", ".", "?", "#", "#", "."], [:optional_space, 1, :space, 1, :space, 3]},
-    {["?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?"], [:optional_space, 1, :space, 3, :space, 1, :space, 6]},
-    {["?", "?", "?", "?", ".", "#", ".", ".", ".", "#", ".", ".", "."], [:optional_space, 4, :space, 1, :space, 1]},
-    {["?", "?", "?", "?", ".", "#", "#", "#", "#", "#", "#", ".", ".", "#", "#", "#", "#", "#", "."], [:optional_space, 1, :space, 6, :space, 5]},
-    {["?", "#", "#", "#", "?", "?", "?", "?", "?", "?", "?", "?"], [:optional_space, 3, :space, 2, :space, 1]}
+    {"???.###", [1, 1, 3]},
+    {".??..??...?##.", [1, 1, 3]},
+    {"?#?#?#?#?#?#?#?", [1, 3, 1, 6]},
+    {"????.#...#...", [4, 1, 1]},
+    {"????.######..#####.", [1, 6, 5]},
+    {"?###????????", [3, 2, 1]}
   ]
   """
   def parse(input) do
@@ -22,128 +22,123 @@ defmodule Dec12 do
     |> Enum.map(fn line ->
       line
       |> String.split(" ", trim: true)
-      |> Enum.map(fn part -> part |> String.graphemes() end)
       |> List.to_tuple()
       |> then(fn {conditions, checksum} ->
-        {conditions,
-         [
-           :optional_space
-           | checksum
-             |> Enum.map(fn
-               "," -> :space
-               c -> String.to_integer(c)
-             end)
-         ]}
+        {conditions, checksum |> String.split(",", trim: true) |> Enum.map(&String.to_integer/1)}
       end)
     end)
   end
 
   @doc """
-  iex> Dec12.expand(["?", "?", "?", ".", "#", "#", "#"])
+  iex> Dec12.expand("???.###")
   [
-    ["#", "#", "#", ".", "#", "#", "#"],
-    [".", "#", "#", ".", "#", "#", "#"],
-    ["#", ".", "#", ".", "#", "#", "#"],
-    [".", ".", "#", ".", "#", "#", "#"],
-    ["#", "#", ".", ".", "#", "#", "#"],
-    [".", "#", ".", ".", "#", "#", "#"],
-    ["#", ".", ".", ".", "#", "#", "#"],
-    [".", ".", ".", ".", "#", "#", "#"],
+    "###.###",
+    "##..###",
+    "#.#.###",
+    "#...###",
+    ".##.###",
+    ".#..###",
+    "..#.###",
+    "....###",
   ]
   """
-  def expand([]), do: [[]]
-  def expand(["#" | rest]), do: expand(rest) |> Enum.map(fn x -> ["#" | x] end)
-  def expand(["." | rest]), do: expand(rest) |> Enum.map(fn x -> ["." | x] end)
-  def expand(["?" | rest]), do: expand(rest) |> Enum.flat_map(fn x -> [["#" | x], ["." | x]] end)
+  def expand(""), do: [""]
+  def expand("#" <> rest), do: expand(rest) |> Enum.map(fn x -> "#" <> x end) |> Enum.sort()
+  def expand("." <> rest), do: expand(rest) |> Enum.map(fn x -> "." <> x end) |> Enum.sort()
 
+  def expand("?" <> rest),
+    do: expand(rest) |> Enum.flat_map(fn x -> ["#" <> x, "." <> x] end) |> Enum.sort()
+
+  @spec valid?(String.t(), [integer()]) :: boolean
   @doc """
-  iex> Dec12.valid?(["#", "#", "#", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?([".", "#", "#", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?(["#", ".", "#", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
+  iex> Dec12.valid?("##.#.#", [2,1,1])
   true
-  iex> Dec12.valid?([".", ".", "#", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?(["#", "#", ".", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?([".", "#", ".", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?(["#", ".", ".", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
-  iex> Dec12.valid?([".", ".", ".", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
-  false
+  iex> Dec12.valid?(".##.#.#", [2,1,1])
+  true
 
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", ".", ".", "#", "#", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?("###.###", [1, 1, 3])
+  false
+  iex> Dec12.valid?(".##.###", [1, 1, 3])
+  false
+  iex> Dec12.valid?("#.#.###", [1, 1, 3])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", ".", "#", ".", "#", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?("..#.###", [1, 1, 3])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", ".", ".", "#", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?("##..###", [1, 1, 3])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", ".", ".", "#", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".#..###", [1, 1, 3])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", ".", "#", "#", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?("#...###", [1, 1, 3])
+  false
+  iex> Dec12.valid?("....###", [1, 1, 3])
+  false
+  iex> Dec12.valid?(".###....##.#", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", ".", "#", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###...#.#.#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", ".", "#", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###..#..#.#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", "#", ".", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
-  true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", "#", ".", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.#...#.#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", "#", ".", ".", ".", ".", "#"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###...##..#", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", ".", "#", "#", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
-  true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", ".", "#", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###..#.#..#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", ".", "#", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.#..#..#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", "#", ".", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###..##...#", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", "#", ".", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.#.#...#", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", "#", ".", ".", ".", "#", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.##....#", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", ".", "#", "#", ".", "#", ".", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###...##.#.", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", ".", "#", ".", "#", ".", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###..#.#.#.", [3, 2, 1])
   false
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", "#", ".", ".", "#", ".", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.#..#.#.", [3, 2, 1])
+  false
+  iex> Dec12.valid?(".###..##..#.", [3, 2, 1])
   true
-  iex> Dec12.valid?([".", "#", "#", "#", ".", "#", "#", ".", "#", ".", ".", "."], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.valid?(".###.#.#..#.", [3, 2, 1])
+  false
+  iex> Dec12.valid?(".###.##...#.", [3, 2, 1])
+  true
+  iex> Dec12.valid?(".###..##.#..", [3, 2, 1])
+  true
+  iex> Dec12.valid?(".###.#.#.#..", [3, 2, 1])
+  false
+  iex> Dec12.valid?(".###.##..#..", [3, 2, 1])
+  true
+  iex> Dec12.valid?(".###.##.#...", [3, 2, 1])
   true
   """
-  def valid?([], []), do: true
-  def valid?(["." | rest], []), do: valid?(rest, [])
-  def valid?(["." | rest], [:space | reqs]), do: valid?(rest, [:optional_space | reqs])
+  # if there are no more springs, the requirements list must also be empty
+  def valid?("", []), do: true
+  def valid?("." <> springs, spec), do: valid?(springs, spec)
+  def valid?("#" <> _, []), do: false
+  def valid?("", [_ | _]), do: false
+  def valid?("#" <> springs, [d | spec]), do: valid_group?(springs, d - 1, spec)
 
-  def valid?(["." | rest], [:optional_space | reqs]),
-    do: valid?(rest, [:optional_space | reqs])
-
-  def valid?(["#" | rest], [:optional_space | reqs]), do: valid?(["#" | rest], reqs)
-  def valid?(["#" | rest], [1 | reqs]), do: valid?(rest, reqs)
-
-  def valid?(["#" | rest], [d | reqs]) when is_integer(d) and d > 1,
-    do: valid?(rest, [d - 1 | reqs])
-
-  def valid?(["#" | _], [:space | _]), do: false
-
-  def valid?(_, _), do: false
+  def valid_group?("#" <> _, 0, _), do: false
+  def valid_group?("#" <> springs, d, spec) when d > 0, do: valid_group?(springs, d - 1, spec)
+  def valid_group?("." <> springs, 0, spec), do: valid?(springs, spec)
+  def valid_group?("." <> _, d, _) when d > 0, do: false
+  def valid_group?("", 0, spec), do: valid?("", spec)
+  def valid_group?("", d, _) when d > 0, do: false
 
   @doc """
-  iex> Dec12.n_valid(["?", "?", "?", ".", "#", "#", "#"], [:optional_space, 1, :space, 1, :space, 3])
+  iex> Dec12.n_valid("???.###", [1, 1, 3])
   1
-  iex> Dec12.n_valid([".", "?", "?", ".", ".", "?", "?", ".", ".", ".", "?", "#", "#", "."], [:optional_space, 1, :space, 1, :space, 3])
+  iex> Dec12.n_valid(".??..??...?##.", [1, 1, 3])
   4
-  iex> Dec12.n_valid(["?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?", "#", "?"], [:optional_space, 1, :space, 3, :space, 1, :space, 6])
+  iex> Dec12.n_valid("?#?#?#?#?#?#?#?", [1, 3, 1, 6])
   1
-  iex> Dec12.n_valid(["?", "?", "?", "?", ".", "#", ".", ".", ".", "#", ".", ".", "."], [:optional_space, 4, :space, 1, :space, 1])
+  iex> Dec12.n_valid("????.#...#...", [4, 1, 1])
   1
-  iex> Dec12.n_valid(["?", "?", "?", "?", ".", "#", "#", "#", "#", "#", "#", ".", ".", "#", "#", "#", "#", "#", "."], [:optional_space, 1, :space, 6, :space, 5])
+  iex> Dec12.n_valid("????.######..#####.", [1, 6, 5])
   4
-  iex> Dec12.n_valid(["?", "#", "#", "#", "?", "?", "?", "?", "?", "?", "?", "?"], [:optional_space, 3, :space, 2, :space, 1])
+  iex> Dec12.n_valid("?###????????", [3, 2, 1])
   10
   """
   def n_valid(conditions, requirements) do
