@@ -1,3 +1,4 @@
 %{
   "elixir_math": {:hex, :elixir_math, "0.1.2", "5655bdf7f34e30906f31cdcf3031b43dd522ce8d2936b60ad4696b2c752bf5c9", [:mix], [], "hexpm", "34f4e4384903097a8ec566784fa8e9aa2b741247d225741f07cc48250c2aa64c"},
+  "memoize": {:hex, :memoize, "1.4.2", "cc289c7f1b86a37e7278180aa382bdc8935e8280cbf41659482d29d843bcd16d", [:mix], [], "hexpm", "daabbbf763b07bc2a2aedba6c87945cbc3d9100e46cfa651923a81e098adbcfa"},
 }
