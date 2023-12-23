@@ -66,17 +66,35 @@ defmodule Dec13 do
   ...>..##..##.
   ...>#.#.##.#.
   ...>") |> Enum.map(fn {xhi, yhi, pattern} -> Dec13.find_vertical_mirror(xhi, yhi, pattern, 0) end)
-  [4]
+  [{4, :vertical}]
   """
   def find_vertical_mirror(xhi, yhi, pattern, x) when x < xhi do
     if vertical_mirror?(xhi, yhi, x, pattern, 0) do
-      x
+      {x, :vertical}
     else
       find_vertical_mirror(xhi, yhi, pattern, x + 1)
     end
   end
 
   def find_vertical_mirror(_, _, _, _), do: nil
+
+  def find_vertical_mirrors(xhi, _, _, x0) when x0 > xhi, do: []
+
+  def find_vertical_mirrors(xhi, yhi, pattern, x0) do
+    case find_vertical_mirror(xhi, yhi, pattern, x0) do
+      nil -> []
+      {x, :vertical} -> [{x, :vertical} | find_vertical_mirrors(xhi, yhi, pattern, x + 1)]
+    end
+  end
+
+  def find_horizontal_mirrors(_, yhi, _, y0) when y0 > yhi, do: []
+
+  def find_horizontal_mirrors(xhi, yhi, pattern, y0) do
+    case find_horizontal_mirror(xhi, yhi, pattern, y0) do
+      nil -> []
+      {y, :horizontal} -> [{y, :horizontal} | find_horizontal_mirrors(xhi, yhi, pattern, y + 1)]
+    end
+  end
 
   @doc """
   iex> Dec13.parse("#...##..#
@@ -101,17 +119,35 @@ defmodule Dec13 do
   ...>..#..#..#..
   ...>...##...#..
   ...>") |> Enum.map(fn {xhi,yhi,pattern} -> Dec13.find_horizontal_mirror(xhi, yhi, pattern, 0) end)
-  [3, 3]
+  [{3, :horizontal}, {3, :horizontal}]
   """
   def find_horizontal_mirror(xhi, yhi, pattern, y) when y < yhi do
     if horizontal_mirror?(xhi, yhi, y, pattern, 0) do
-      y
+      {y, :horizontal}
     else
       find_horizontal_mirror(xhi, yhi, pattern, y + 1)
     end
   end
 
   def find_horizontal_mirror(_, _, _, _), do: nil
+
+  def find_mirrors(xhi, yhi, pattern) do
+    Enum.concat(
+      find_vertical_mirrors(xhi, yhi, pattern, 0),
+      find_horizontal_mirrors(xhi, yhi, pattern, 0)
+    )
+    |> Enum.reject(&is_nil/1)
+  end
+
+  def summarize(mirrors) do
+    mirrors
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn
+      {v, :vertical} -> v + 1
+      {h, :horizontal} -> 100 * (h + 1)
+    end)
+    |> Enum.sum()
+  end
 
   @doc """
   iex> Dec13.a("#.##..##.
@@ -134,21 +170,151 @@ defmodule Dec13 do
   """
   def a(input) do
     parse(input)
-    |> Enum.with_index()
-    |> Enum.map(fn {{xhi, yhi, pattern}, i} ->
-      {v, h} =
-        {find_vertical_mirror(xhi, yhi, pattern, 0), find_horizontal_mirror(xhi, yhi, pattern, 0)}
+    |> Enum.flat_map(fn {xhi, yhi, pattern} -> find_mirrors(xhi, yhi, pattern) end)
+    |> summarize()
+  end
 
-      if v == nil and h == nil do
-        IO.puts("No mirror found for pattern #{i}")
+  @doc """
+  iex> Dec13.parse(".#..#......
+  ...>..#.#......
+  ...>..#...#....
+  ...>#.##...####
+  ...>.#..#..####
+  ...>#.#.##.####
+  ...>###..#.#..#
+  ...>")
+  ...>|> Enum.all?(fn {xhi, yhi, pattern} -> length(Dec13.variants(xhi, yhi, pattern, 0, 0)) == (xhi+1)*(yhi+1) end)
+  true
+  iex> Dec13.parse("...\\n...\\n...")
+  ...> |> Enum.map(fn {xhi, yhi, pattern} -> Dec13.variants(xhi, yhi, pattern, 0, 0) |> Enum.map(fn variant -> Dec13.show(xhi, yhi, variant) end) end)
+  ...> |> Enum.flat_map(&Function.identity/1)
+  ...> |> Enum.join("\\n=====\\n")
+  "  012
+  0 #..
+  1 ...
+  2 ...
+  =====
+    012
+  0 .#.
+  1 ...
+  2 ...
+  =====
+    012
+  0 ..#
+  1 ...
+  2 ...
+  =====
+    012
+  0 ...
+  1 #..
+  2 ...
+  =====
+    012
+  0 ...
+  1 .#.
+  2 ...
+  =====
+    012
+  0 ...
+  1 ..#
+  2 ...
+  =====
+    012
+  0 ...
+  1 ...
+  2 #..
+  =====
+    012
+  0 ...
+  1 ...
+  2 .#.
+  =====
+    012
+  0 ...
+  1 ...
+  2 ..#"
+  """
+  def variants(xhi, yhi, pattern, x, y) when x < xhi do
+    next =
+      case pattern[{x, y}] do
+        "." -> "#"
+        "#" -> "."
       end
 
-      {v, h}
+    [Map.put(pattern, {x, y}, next) | variants(xhi, yhi, pattern, x + 1, y)]
+  end
+
+  def variants(xhi, yhi, pattern, x, y) when x == xhi and y < yhi do
+    next =
+      case pattern[{x, y}] do
+        "." -> "#"
+        "#" -> "."
+      end
+
+    [Map.put(pattern, {x, y}, next) | variants(xhi, yhi, pattern, 0, y + 1)]
+  end
+
+  def variants(xhi, yhi, pattern, x, y) when x == xhi and y == yhi do
+    next =
+      case pattern[{x, y}] do
+        "." -> "#"
+        "#" -> "."
+      end
+
+    [Map.put(pattern, {x, y}, next)]
+  end
+
+  @doc """
+  iex> Dec13.b("#.##..##.
+  ...>..#.##.#.
+  ...>##......#
+  ...>##......#
+  ...>..#.##.#.
+  ...>..##..##.
+  ...>#.#.##.#.
+  ...>
+  ...>#...##..#
+  ...>#....#..#
+  ...>..##..###
+  ...>#####.##.
+  ...>#####.##.
+  ...>..##..###
+  ...>#....#..#
+  ...>")
+  400
+  """
+  def b(input) do
+    parse(input)
+    |> Enum.flat_map(&b1/1)
+    |> summarize()
+  end
+
+  def b1({xhi, yhi, pattern}) do
+    original = find_mirrors(xhi, yhi, pattern)
+
+    variants(xhi, yhi, pattern, 0, 0)
+    |> Enum.map(fn variant ->
+      find_mirrors(xhi, yhi, variant)
+      |> Enum.reject(&Enum.member?(original, &1))
     end)
-    |> Enum.map(fn
-      {x, nil} -> x + 1
-      {nil, y} -> 100 * (y + 1)
-    end)
-    |> Enum.sum()
+    |> Enum.flat_map(&Function.identity/1)
+    |> Enum.uniq()
+  end
+
+  def show(xhi, yhi, pattern) do
+    top_row = 0..xhi |> Enum.map(fn x -> rem(x, 10) end) |> Enum.join("")
+
+    y_digits = (ElixirMath.log10(1.0 * yhi) |> trunc()) + 1
+
+    rows =
+      0..yhi
+      |> Enum.map(fn y ->
+        prefix = "#{String.pad_leading(Integer.to_string(y), y_digits, " ")}"
+        line = 0..xhi |> Enum.map(fn x -> pattern[{x, y}] end) |> Enum.join("")
+        prefix <> " " <> line
+      end)
+      |> Enum.join("\n")
+
+    "#{String.duplicate(" ", y_digits + 1)}#{top_row}\n" <> rows
   end
 end

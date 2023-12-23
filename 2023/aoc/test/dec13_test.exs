@@ -6,5 +6,6 @@ defmodule Dec13Test do
     input = File.read!("../../inputs/2023/13.txt")
 
     assert Dec13.a(input) == 40006
+    assert Dec13.b(input) == 28627
   end
 end
