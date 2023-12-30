@@ -50,9 +50,9 @@ defmodule Dec17 do
       end
     end
 
-    def find_path({grid, xhi, yhi}, next_dirs, done, first_state) do
-      q = new() |> put(0, {first_state, %{}})
-      Djikstra.find_path({q, MapSet.new([first_state])}, {grid, xhi, yhi}, nexts(next_dirs), done)
+    def find_path({grid, xhi, yhi}, next_dirs, done, first_states) do
+      q = first_states |> Enum.reduce(new(), fn s, q -> put(q, 0, {s, %{}}) end)
+      Djikstra.find_path({q, MapSet.new(first_states)}, {grid, xhi, yhi}, nexts(next_dirs), done)
     end
 
     def find_path({q, seen}, {grid, xhi, yhi}, nexts, done) do
@@ -111,7 +111,7 @@ defmodule Dec17 do
   """
   def a(input) do
     {grid, xhi, yhi} = input |> parse()
-    {cost, _} = Djikstra.find_path({grid, xhi, yhi}, &Crucible.next_dirs/2, &Crucible.done/5, {0, 0, :e, 0})
+    {cost, _} = Djikstra.find_path({grid, xhi, yhi}, &Crucible.next_dirs/2, &Crucible.done/5, [{0, 0, :e, 0}])
 
     cost
   end
@@ -143,14 +143,9 @@ defmodule Dec17 do
   """
   def b(input) do
     {grid, xhi, yhi} = input |> parse()
+    {cost, _} =       Djikstra.find_path({grid, xhi, yhi}, &UltraCrucible.next_dirs/2, &UltraCrucible.done/5, [{0, 0, :e, 0},{0, 0, :s, 0}])
 
-    {cost_e, _} =
-      Djikstra.find_path({grid, xhi, yhi}, &UltraCrucible.next_dirs/2, &UltraCrucible.done/5, {0, 0, :e, 0})
-
-    {cost_s, _} =
-      Djikstra.find_path({grid, xhi, yhi}, &UltraCrucible.next_dirs/2, &UltraCrucible.done/5,{0, 0, :s, 0})
-
-    min(cost_e, cost_s)
+    cost
   end
 
   def show(grid, xhi, yhi, path, cost) do
