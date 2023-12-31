@@ -1,6 +1,39 @@
 defmodule Dec18 do
   defmodule Instruction do
-    defstruct [:dir, :steps, :color]
+    @doc """
+    iex> "R 6 (#70c710)
+    ...>D 5 (#0dc571)
+    ...>L 2 (#5713f0)
+    ...>D 2 (#d2c081)
+    ...>R 2 (#59c680)
+    ...>D 2 (#411b91)
+    ...>L 5 (#8ceee2)
+    ...>U 2 (#caa173)
+    ...>L 1 (#1b58a2)
+    ...>U 2 (#caa171)
+    ...>R 2 (#7807d2)
+    ...>U 3 (#a77fa3)
+    ...>L 2 (#015232)
+    ...>U 2 (#7a21e3)
+    ...>" |> Dec18.Instruction.parse_simple()
+    [{:R, 6}, {:D, 5}, {:L, 2}, {:D, 2}, {:R, 2}, {:D, 2}, {:L, 5}, {:U, 2}, {:L, 1}, {:U, 2}, {:R, 2}, {:U, 3}, {:L, 2}, {:U, 2}]
+    """
+    def parse_simple(input) do
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(fn line ->
+        %{"dir" => dir, "steps" => steps} =
+          Regex.named_captures(
+            ~r/(?<dir>[RLDU]) (?<steps>\d+)/,
+            line
+          )
+
+        {
+          String.to_atom(dir),
+          String.to_integer(steps)
+        }
+      end)
+    end
 
     @doc """
     iex> "R 6 (#70c710)
@@ -17,130 +50,68 @@ defmodule Dec18 do
     ...>U 3 (#a77fa3)
     ...>L 2 (#015232)
     ...>U 2 (#7a21e3)
-    ...>" |> Dec18.Instruction.parse() |> Enum.count()
-    14
+    ...>" |> Dec18.Instruction.parse_complicated()
+    [{:R, 461937},{:D, 56407},{:R, 356671},{:D, 863240},{:R, 367720},{:D, 266681},{:L, 577262},{:U, 829975},{:L, 112010},{:D, 829975},{:L, 491645},{:U, 686074},{:L, 5411},{:U, 500254}]
     """
-    def parse(input) do
+    def parse_complicated(input) do
       input
       |> String.split("\n", trim: true)
       |> Enum.map(fn line ->
-        %{"dir" => dir, "steps" => steps, "r" => r, "g" => g, "b" => b} =
-          Regex.named_captures(
-            ~r/(?<dir>[RLDU]) (?<steps>\d+) \(#(?<r>[0-9a-f]{2})(?<g>[0-9a-f]{2})(?<b>[0-9a-f]{2})\)/,
-            line
-          )
+        %{"dir" => dir, "steps" => steps} =
+          Regex.named_captures(~r/\(#(?<steps>[0-9a-f]{5})(?<dir>[0-3])\)/, line)
 
-        %Instruction{
-          dir: String.to_atom(dir),
-          steps: String.to_integer(steps),
-          color: {String.to_integer(r, 16), String.to_integer(g, 16), String.to_integer(b, 16)}
+        {
+          case dir do
+            "0" -> :R
+            "1" -> :D
+            "2" -> :L
+            "3" -> :U
+          end,
+          String.to_integer(steps, 16)
         }
       end)
     end
   end
 
-  defmodule Dig do
-    def outline(instructions) do
-      {grid, xlo, xhi, ylo, yhi, _} =
-        instructions
-        |> Enum.reduce({%{}, 0, 0, 0, 0, {0, 0}}, fn instruction, {grid, xlo, xhi, ylo, yhi, p} ->
-          ditch(p, instruction, grid, xlo, xhi, ylo, yhi)
+  defmodule Measure do
+    defp step(:R, steps, {x, y}), do: {x + steps, y}
+    defp step(:L, steps, {x, y}), do: {x - steps, y}
+    defp step(:U, steps, {x, y}), do: {x, y + steps}
+    defp step(:D, steps, {x, y}), do: {x, y - steps}
+
+    defp vertices(instructions), do: vertices(instructions, [{0, 0}])
+    defp vertices([], vs), do: vs |> Enum.reverse()
+
+    defp vertices([{dir, steps} | instructions], [p | vs]),
+      do: vertices(instructions, [step(dir, steps, p), p | vs])
+
+    defp translate_to_first_quadrant(vertices) do
+      {xlo, ylo} =
+        vertices |> Enum.reduce(fn {x, y}, {xlo, ylo} -> {min(x, xlo), min(y, ylo)} end)
+
+      vertices
+      |> Enum.map(fn {x, y} -> {x + abs(xlo), y + abs(ylo)} end)
+    end
+
+    defp edges(vertices), do: Enum.zip([nil | vertices], vertices) |> Enum.drop(1)
+
+    defp area(edges),
+      do:
+        edges
+        |> Enum.map(fn {{x1, y1}, {x2, y2}} ->
+          (y1 + y2) * (x2 - x1) + abs(y2 - y1) + abs(x2 - x1)
         end)
+        |> Enum.sum()
+        |> abs()
+        |> then(&div(&1, 2))
+        |> then(&(&1 + 1))
 
-      {grid, xlo, xhi, ylo, yhi}
-    end
-
-    defp ditch(p, instr, grid, xlo, xhi, ylo, yhi) do
-      ditch(p, instr.dir, instr.steps)
-      |> Enum.reduce({grid, xlo, xhi, ylo, yhi, p}, fn {x, y}, {grid, xlo, xhi, ylo, yhi, _} ->
-        grid = Map.put(grid, {x, y}, instr.color)
-        xlo = min(xlo, x)
-        xhi = max(xhi, x)
-        ylo = min(ylo, y)
-        yhi = max(yhi, y)
-        {grid, xlo, xhi, ylo, yhi, {x, y}}
-      end)
-    end
-
-    defp ditch({x, y}, :R, 0), do: [{x, y}]
-    defp ditch({x, y}, :R, n), do: [{x, y} | ditch({x + 1, y}, :R, n - 1)]
-    defp ditch({x, y}, :L, 0), do: [{x, y}]
-    defp ditch({x, y}, :L, n), do: [{x, y} | ditch({x - 1, y}, :L, n - 1)]
-    defp ditch({x, y}, :U, 0), do: [{x, y}]
-    defp ditch({x, y}, :U, n), do: [{x, y} | ditch({x, y - 1}, :U, n - 1)]
-    defp ditch({x, y}, :D, 0), do: [{x, y}]
-    defp ditch({x, y}, :D, n), do: [{x, y} | ditch({x, y + 1}, :D, n - 1)]
-
-    def dig({grid, xlo, xhi, ylo, yhi}),
-      do: dig(grid, xlo, xhi, ylo, yhi, xlo, ylo + 1, {false, nil})
-
-    defp wall_at(grid, x, y) do
-      {Map.get(grid, {x, y - 1}, {255, 255, 255}) != {255, 255, 255}, Map.has_key?(grid, {x, y}),
-       Map.get(grid, {x, y + 1}, {255, 255, 255}) != {255, 255, 255}}
-    end
-
-    def dig(grid, xlo, xhi, ylo, yhi, x, y, _) when x > xhi,
-      do: dig(grid, xlo, xhi, ylo, yhi, xlo, y + 1, {false, nil})
-
-    def dig(grid, xlo, xhi, ylo, yhi, _, y, _) when y >= yhi, do: {grid, xlo, xhi, ylo, yhi}
-
-    def dig(grid, xlo, xhi, ylo, yhi, x, y, {true, nil}) do
-      case wall_at(grid, x, y) do
-        {_, false, _} ->
-          dig(grid |> Map.put({x, y}, {255, 255, 255}), xlo, xhi, ylo, yhi, x + 1, y, {true, nil})
-
-        {true, true, false} ->
-          dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {true, :above})
-
-        {false, true, true} ->
-          dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {true, :below})
-
-        {true, true, true} ->
-          dig(grid, xlo, xhi, ylo, yhi, x + 2, y, {false, nil})
-      end
-    end
-
-    def dig(grid, xlo, xhi, ylo, yhi, x, y, {false, nil}) do
-      case wall_at(grid, x, y) do
-        {_, false, _} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {false, nil})
-        {true, true, false} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {false, :above})
-        {false, true, true} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {false, :below})
-        {true, true, true} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {true, nil})
-      end
-    end
-
-    def dig(grid, xlo, xhi, ylo, yhi, x, y, {inside, :above}) do
-      case wall_at(grid, x, y) do
-        {false, true, false} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {inside, :above})
-        {false, true, true} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {not inside, nil})
-        {true, true, false} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {inside, nil})
-      end
-    end
-
-    def dig(grid, xlo, xhi, ylo, yhi, x, y, {inside, :below}) do
-      case wall_at(grid, x, y) do
-        {false, true, false} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {inside, :below})
-        {false, true, true} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {inside, nil})
-        {true, true, false} -> dig(grid, xlo, xhi, ylo, yhi, x + 1, y, {not inside, nil})
-      end
-    end
-
-    def show({grid, xlo, xhi, ylo, yhi}) do
-      for y <- ylo..yhi do
-        for x <- xlo..xhi do
-          cond do
-            Map.has_key?(grid, {x, y}) ->
-              {r, g, b} = grid[{x, y}]
-              IO.ANSI.color(trunc(r * 5 / 255), trunc(g * 5 / 255), trunc(b * 5 / 255)) <> "#"
-
-            true ->
-              IO.ANSI.light_black() <> "."
-          end
-        end
-        |> Enum.join()
-      end
-      |> Enum.join("\n")
-      |> then(fn s -> "\n\n" <> s <> IO.ANSI.reset() end)
+    def dig_size(instructions) do
+      instructions
+      |> vertices()
+      |> translate_to_first_quadrant()
+      |> edges()
+      |> area()
     end
   end
 
@@ -163,12 +134,32 @@ defmodule Dec18 do
   62
   """
   def a(input) do
-    {grid, _, _, _, _} =
-      input
-      |> Instruction.parse()
-      |> Dig.outline()
-      |> Dig.dig()
+    input
+    |> Instruction.parse_simple()
+    |> Measure.dig_size()
+  end
 
-    map_size(grid)
+  @doc """
+  iex> "R 6 (#70c710)
+  ...>D 5 (#0dc571)
+  ...>L 2 (#5713f0)
+  ...>D 2 (#d2c081)
+  ...>R 2 (#59c680)
+  ...>D 2 (#411b91)
+  ...>L 5 (#8ceee2)
+  ...>U 2 (#caa173)
+  ...>L 1 (#1b58a2)
+  ...>U 2 (#caa171)
+  ...>R 2 (#7807d2)
+  ...>U 3 (#a77fa3)
+  ...>L 2 (#015232)
+  ...>U 2 (#7a21e3)
+  ...>" |> Dec18.b()
+  952408144115
+  """
+  def b(input) do
+    input
+    |> Instruction.parse_complicated()
+    |> Measure.dig_size()
   end
 end
