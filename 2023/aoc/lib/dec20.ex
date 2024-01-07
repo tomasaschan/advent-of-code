@@ -87,7 +87,7 @@ defmodule Dec20 do
     |> Map.new()
   end
 
-  def press_button(_, state, trackers, 0), do: {state, trackers}
+  def press_button(_, _, trackers, 0), do: trackers
 
   def press_button(modules, state, trackers, n) do
     {state, trackers} = press_button(modules, state, trackers)
@@ -121,11 +121,11 @@ defmodule Dec20 do
       {:empty, _} ->
         {state, trackers}
 
-      {{:value, {:broadcaster, :plain, false, _}}, q} ->
+      {{:value, {:broadcaster, :plain, false, src}}, q} ->
         send_pulses(
           modules,
           state,
-          track_signal(trackers, false, :broadcaster),
+          track_signal(trackers, false, src),
           :queue.join(
             q,
             :queue.from_list(
@@ -135,24 +135,24 @@ defmodule Dec20 do
           )
         )
 
-      {{:value, {dst, nil, on, _}}, q} ->
+      {{:value, {_, nil, on, src}}, q} ->
         send_pulses(
           modules,
           state,
-          track_signal(trackers, on, dst),
+          track_signal(trackers, on, src),
           q
         )
 
-      {{:value, {dst, :flip_flop, true, _}}, q} ->
-        send_pulses(modules, state, track_signal(trackers, true, dst), q)
+      {{:value, {_, :flip_flop, true, src}}, q} ->
+        send_pulses(modules, state, track_signal(trackers, true, src), q)
 
-      {{:value, {dst, :flip_flop, false, _}}, q} ->
+      {{:value, {dst, :flip_flop, false, src}}, q} ->
         on = not state[dst]
 
         send_pulses(
           modules,
           %{state | dst => on},
-          track_signal(trackers, false, dst),
+          track_signal(trackers, false, src),
           :queue.join(
             q,
             :queue.from_list(
@@ -169,7 +169,7 @@ defmodule Dec20 do
         send_pulses(
           modules,
           %{state | dst => inputs},
-          track_signal(trackers, on, dst),
+          track_signal(trackers, on, src),
           :queue.join(
             q,
             :queue.from_list(
@@ -189,16 +189,41 @@ defmodule Dec20 do
     end
   end
 
-  defp track_signal(trackers, on, dst) do
-    trackers = %{trackers | on => trackers[on] + 1}
-
-    case {Map.get(trackers, dst), on} do
-      {signals, false} when is_list(signals) ->
-        %{trackers | dst => [{trackers[:button], on} | signals]}
-
-      _ ->
+  defp track_signal(trackers, on, src) do
+    trackers =
+      if Map.has_key?(trackers, on) do
+        %{trackers | on => trackers[on] + 1}
+      else
         trackers
+      end
+
+    trackers =
+      case {on, Map.get(trackers, {:src, src})} do
+        {true, 0} -> Map.put(trackers, {:src, src}, trackers[:button])
+        _ -> trackers
+      end
+
+    trackers
+  end
+
+  def find_cycle(modules, state, trackers) do
+    {state, trackers} = press_button(modules, state, trackers)
+
+    if key_module_counts(trackers)
+       |> Enum.all?(fn {_, n} -> n > 0 end) do
+      key_module_counts(trackers)
+    else
+      find_cycle(modules, state, trackers)
     end
+  end
+
+  defp key_module_counts(trackers) do
+    trackers
+    |> Enum.filter(fn
+      {{:src, _}, _} -> true
+      _ -> false
+    end)
+    |> Map.new()
   end
 
   @doc """
@@ -221,7 +246,7 @@ defmodule Dec20 do
     modules = input |> parse()
     state = initial_state(modules)
 
-    {_, trackers} =
+    trackers =
       press_button(
         modules,
         state,
@@ -230,5 +255,21 @@ defmodule Dec20 do
       )
 
     trackers[true] * trackers[false]
+  end
+
+  def b(input) do
+    modules = input |> parse()
+    state = initial_state(modules)
+
+    key_modules = modules[modules[:rx][:in] |> Enum.at(0)][:in]
+
+    trackers =
+      key_modules
+      |> Enum.map(fn k -> {{:src, k}, 0} end)
+      |> Map.new()
+
+    trackers = find_cycle(modules, state, Map.put(trackers, :button, 0))
+
+    trackers |> Enum.map(fn {_, n} -> n end) |> Enum.reduce(1, &ElixirMath.lcm/2)
   end
 end
