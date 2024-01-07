@@ -1,310 +1,203 @@
 defmodule Dec20 do
-  defmodule Modules do
-    def flip_flop(name, nexts) do
-      pid = spawn_link(fn -> flip_flop_loop({false, name, nexts}) end)
-      Process.register(pid, name)
-    end
+  @doc """
+  iex> "broadcaster -> a, b, c
+  ...>%a -> b
+  ...>%b -> c
+  ...>%c -> inv
+  ...>&inv -> a
+  ...>" |> Dec20.parse()
+  %{
+    broadcaster: %{type: :plain, in: [], out: [:a, :b, :c]},
+    a: %{type: :flip_flop, in: [:broadcaster, :inv], out: [:b]},
+    b: %{type: :flip_flop, in: [:a, :broadcaster], out: [:c]},
+    c: %{type: :flip_flop, in: [:b, :broadcaster], out: [:inv]},
+    inv: %{type: :conjunction, in: [:c], out: [:a]},
+  }
+  """
+  def parse(input) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(fn
+      "%" <> rest ->
+        [name, nexts] = rest |> String.split(" -> ", trim: true)
+        nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
+        {:flip_flop, String.to_atom(name), nexts}
 
-    defp flip_flop_loop({on, name, nexts}) do
-      receive do
-        {:init} ->
-          nexts |> Enum.each(fn next -> send(next, {:connect, name}) end)
-          flip_flop_loop({on, name, nexts})
+      "&" <> rest ->
+        [name, nexts] = rest |> String.split(" -> ", trim: true)
+        nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
+        {:conjunction, String.to_atom(name), nexts}
 
-        {:connect, _} ->
-          flip_flop_loop({on, name, nexts})
+      line ->
+        [name, nexts] = line |> String.split(" -> ", trim: true)
+        nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
+        {:plain, String.to_atom(name), nexts}
+    end)
+    |> Enum.reduce(%{}, fn {type, name, nexts}, modules ->
+      inputs =
+        nexts
+        |> Enum.map(fn next -> %{next => %{in: [name]}} end)
+        |> Enum.reduce(
+          Map.new()
+          |> Map.put(name, %{
+            type: type,
+            out: nexts,
+            in: []
+          }),
+          &Map.merge/2
+        )
 
-        {:signal, true, _} ->
-          flip_flop_loop({on, name, nexts})
+      Map.merge(modules, inputs, fn _, a, b ->
+        Map.merge(a, b, fn
+          :in, a, b -> (a ++ b) |> Enum.sort()
+          :out, a, b -> (a ++ b) |> Enum.sort()
+        end)
+      end)
+    end)
+  end
 
-        {:signal, false, _} ->
-          send(:bus, nexts |> Enum.map(fn next -> {next, {:signal, not on, name}} end))
-          flip_flop_loop({not on, name, nexts})
+  @doc """
+  iex> %{
+  ...>   broadcaster: %{type: :plain, in: [], out: [:a, :b, :c]},
+  ...>   a: %{type: :flip_flop, in: [:broadcaster, :inv], out: [:b]},
+  ...>   b: %{type: :flip_flop, in: [:a, :broadcaster], out: [:c]},
+  ...>   c: %{type: :flip_flop, in: [:b, :broadcaster], out: [:inv]},
+  ...>   inv: %{type: :conjunction, in: [:c], out: [:a]},
+  ...> } |> Dec20.initial_state()
+  %{
+    a: false,
+    b: false,
+    c: false,
+    inv: %{c: false},
+  }
+  """
+  def initial_state(modules) do
+    modules
+    |> Enum.map(fn
+      {name, %{type: :flip_flop}} ->
+        {name, false}
 
-        {:shut_down, pid} ->
-          send(pid, :ok)
-      end
-    end
+      {name, %{type: :conjunction}} ->
+        {name, modules[name][:in] |> Enum.map(fn input -> {input, false} end) |> Map.new()}
 
-    def conjunction(name, nexts) do
-      pid = spawn_link(fn -> conjunction_loop({%{}, name, nexts}) end)
-      Process.register(pid, name)
-    end
+      _ ->
+        nil
+    end)
+    |> Enum.reject(&is_nil/1)
+    |> Map.new()
+  end
 
-    defp conjunction_loop({inputs, name, nexts}) do
-      receive do
-        {:init} ->
-          nexts |> Enum.each(fn next -> send(next, {:connect, name}) end)
-          conjunction_loop({inputs, name, nexts})
+  def press_button(_, state, trackers, 0), do: {state, trackers}
 
-        {:connect, input} ->
-          conjunction_loop({Map.put(inputs, input, false), name, nexts})
+  def press_button(modules, state, trackers, n) do
+    {state, trackers} = press_button(modules, state, trackers)
+    press_button(modules, state, trackers, n - 1)
+  end
 
-        {:signal, on, src} ->
-          inputs = Map.put(inputs, src, on)
-          output = Map.values(inputs) |> Enum.any?(&(not &1))
-          send(:bus, nexts |> Enum.map(fn next -> {next, {:signal, output, name}} end))
-          conjunction_loop({inputs, name, nexts})
+  @doc """
+  iex> %{
+  ...>   broadcaster: %{type: :plain, in: [], out: [:a, :b, :c]},
+  ...>   a: %{type: :flip_flop, in: [:broadcaster, :inv], out: [:b]},
+  ...>   b: %{type: :flip_flop, in: [:a, :broadcaster], out: [:c]},
+  ...>   c: %{type: :flip_flop, in: [:b, :broadcaster], out: [:inv]},
+  ...>   inv: %{type: :conjunction, in: [:c], out: [:a]},
+  ...> } |> Dec20.press_button(%{a: false, b: false, c: false, inv: %{c: false}}, %{:button => 0, true => 0, false => 0})
+  {
+    %{a: false, b: false, c: false, inv: %{c: false}},
+    %{button: 1, true: 4, false: 8}
+  }
+  """
+  def press_button(modules, state, trackers) do
+    send_pulses(
+      modules,
+      state,
+      track_button_press(trackers),
+      :queue.in({:broadcaster, :plain, false, :button}, :queue.new())
+    )
+  end
 
-        {:shut_down, pid} ->
-          send(pid, :ok)
-      end
-    end
+  defp send_pulses(modules, state, trackers, q) do
+    case :queue.out(q) do
+      {:empty, _} ->
+        {state, trackers}
 
-    def broadcaster(nexts) do
-      pid = spawn_link(fn -> broadcaster_loop({nexts}) end)
-      Process.register(pid, :broadcaster)
-    end
+      {{:value, {:broadcaster, :plain, false, _}}, q} ->
+        send_pulses(
+          modules,
+          state,
+          track_signal(trackers, false, :broadcaster),
+          :queue.join(
+            q,
+            :queue.from_list(
+              modules[:broadcaster][:out]
+              |> Enum.map(fn next -> {next, modules[next][:type], false, :broadcaster} end)
+            )
+          )
+        )
 
-    defp broadcaster_loop({nexts}) do
-      receive do
-        {:init} ->
-          nexts |> Enum.each(fn next -> send(next, {:connect, :broadcaster}) end)
-          broadcaster_loop({nexts})
+      {{:value, {dst, nil, on, _}}, q} ->
+        send_pulses(
+          modules,
+          state,
+          track_signal(trackers, on, dst),
+          q
+        )
 
-        {:connect, _} ->
-          broadcaster_loop({nexts})
+      {{:value, {dst, :flip_flop, true, _}}, q} ->
+        send_pulses(modules, state, track_signal(trackers, true, dst), q)
 
-        {:signal, on, _} ->
-          send(:bus, nexts |> Enum.map(fn next -> {next, {:signal, on, :broadcaster}} end))
-          broadcaster_loop({nexts})
+      {{:value, {dst, :flip_flop, false, _}}, q} ->
+        on = not state[dst]
 
-        {:shut_down, pid} ->
-          send(pid, :ok)
-      end
-    end
+        send_pulses(
+          modules,
+          %{state | dst => on},
+          track_signal(trackers, false, dst),
+          :queue.join(
+            q,
+            :queue.from_list(
+              modules[dst][:out]
+              |> Enum.map(fn next -> {next, modules[next][:type], on, dst} end)
+            )
+          )
+        )
 
-    def push_button() do
-      send(:bus, [{:broadcaster, {:signal, false, :button}}])
-    end
+      {{:value, {dst, :conjunction, on, src}}, q} ->
+        inputs = Map.put(state[dst], src, on)
+        output = Map.values(inputs) |> Enum.any?(&(not &1))
 
-    def bus({runner, trace}) do
-      pid = spawn_link(fn -> bus_loop({0, 0, runner, trace}) end)
-      Process.register(pid, :bus)
-    end
-
-    defp bus_loop({lo, hi, runner, trace}) do
-      receive do
-        {:shut_down, pid} ->
-          send(pid, :ok)
-
-        signals ->
-          counts =
-            signals
-            |> Enum.group_by(fn {_, {:signal, on, _}} -> on end)
-            |> Map.to_list()
-            |> Enum.map(fn {on, signals} -> {on, signals |> Enum.count()} end)
-            |> Map.new()
-
-          signals
-          |> Enum.each(fn {next, {:signal, on, src}} ->
-            if trace do
-              IO.puts(
-                "#{src} -#{if on do
-                  "high"
-                else
-                  "low"
-                end}-> #{next}"
-              )
-            end
-
-            send(next, {:signal, on, src})
-          end)
-
-          bus_loop({lo + Map.get(counts, false, 0), hi + Map.get(counts, true, 0), runner, trace})
-      after
-        5 ->
-          send(runner, {lo, hi})
-          bus_loop({lo, hi, runner, trace})
-      end
-    end
-
-    def output(name) do
-      pid = spawn_link(fn -> output_loop() end)
-      Process.register(pid, name)
-    end
-
-    defp output_loop() do
-      receive do
-        {:init} ->
-          output_loop()
-
-        {:connect, _} ->
-          output_loop()
-
-        {:signal, _, _} ->
-          output_loop()
-
-        {:shut_down, pid} ->
-          send(pid, :ok)
-      end
+        send_pulses(
+          modules,
+          %{state | dst => inputs},
+          track_signal(trackers, on, dst),
+          :queue.join(
+            q,
+            :queue.from_list(
+              modules[dst][:out]
+              |> Enum.map(fn next -> {next, modules[next][:type], output, dst} end)
+            )
+          )
+        )
     end
   end
 
-  defmodule Parse do
-    @doc """
-    iex> "broadcaster -> a, b, c
-    ...>%a -> b
-    ...>%b -> c
-    ...>%c -> inv
-    ...>&inv -> a
-    ...>" |> Dec20.Parse.modules()
-    [
-      {:broadcaster, [:a, :b, :c]},
-      {:flip_flop, :a, [:b]},
-      {:flip_flop, :b, [:c]},
-      {:flip_flop, :c, [:inv]},
-      {:conjunction, :inv, [:a]}
-    ]
-    iex> "broadcaster -> a
-    ...>%a -> inv, con
-    ...>&inv -> b
-    ...>%b -> con
-    ...>&con -> output
-    ...>" |> Dec20.Parse.modules()
-    [
-      {:broadcaster, [:a]},
-      {:flip_flop, :a, [:inv, :con]},
-      {:conjunction, :inv, [:b]},
-      {:flip_flop, :b, [:con]},
-      {:conjunction, :con, [:output]},
-      {:output, :output}
-    ]
-    """
-    def modules(input) do
-      modules =
-        input
-        |> String.split("\n", trim: true)
-        |> Enum.map(&parse_module/1)
-
-      known =
-        modules
-        |> Enum.map(fn
-          {:broadcaster, _} -> :broadcaster
-          {:flip_flop, name, _} -> name
-          {:conjunction, name, _} -> name
-        end)
-        |> MapSet.new()
-
-      outputs =
-        modules
-        |> Enum.flat_map(fn
-          {:broadcaster, nexts} -> nexts
-          {:flip_flop, _, nexts} -> nexts
-          {:conjunction, _, nexts} -> nexts
-        end)
-        |> MapSet.new()
-
-      modules
-      |> Enum.concat(
-        MapSet.difference(outputs, known)
-        |> Enum.map(fn name -> {:output, name} end)
-      )
-    end
-
-    defp parse_module("%" <> line) do
-      [name, nexts] = line |> String.split(" -> ", trim: true)
-      nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
-      {:flip_flop, String.to_atom(name), nexts}
-    end
-
-    defp parse_module("broadcaster -> " <> nexts) do
-      nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
-      {:broadcaster, nexts}
-    end
-
-    defp parse_module("&" <> line) do
-      [name, nexts] = line |> String.split(" -> ", trim: true)
-      nexts = nexts |> String.split(", ", trim: true) |> Enum.map(&String.to_atom/1)
-      {:conjunction, String.to_atom(name), nexts}
+  defp track_button_press(trackers) do
+    if is_integer(trackers[:button]) do
+      %{trackers | button: trackers[:button] + 1}
+    else
+      trackers
     end
   end
 
-  defmodule Run do
-    defp start(modules, trace) do
-      Modules.bus({self(), trace})
+  defp track_signal(trackers, on, dst) do
+    trackers = %{trackers | on => trackers[on] + 1}
 
-      modules
-      |> Enum.each(fn
-        {:broadcaster, nexts} -> Modules.broadcaster(nexts)
-        {:flip_flop, name, nexts} -> Modules.flip_flop(name, nexts)
-        {:conjunction, name, nexts} -> Modules.conjunction(name, nexts)
-        {:output, name} -> Modules.output(name)
-      end)
+    case {Map.get(trackers, dst), on} do
+      {signals, false} when is_list(signals) ->
+        %{trackers | dst => [{trackers[:button], on} | signals]}
 
-      modules
-      |> Enum.each(fn
-        {:broadcaster, _} -> send(:broadcaster, {:init})
-        {:flip_flop, name, _} -> send(name, {:init})
-        {:conjunction, name, _} -> send(name, {:init})
-        {:output, _} -> :ok
-      end)
-    end
-
-    defp stop(modules) do
-      modules
-      |> Enum.each(fn
-        {:broadcaster, _} ->
-          send(:broadcaster, {:shut_down, self()})
-
-        {:output, name} ->
-          send(name, {:shut_down, self()})
-
-        {_, name, _} ->
-          send(name, {:shut_down, self()})
-      end)
-
-      send(:bus, {:shut_down, self()})
-
-      receive do
-      after
-        100 ->
-          :ok
-      end
-    end
-
-    @doc """
-    iex> "broadcaster -> a
-    ...>%a -> inv, con
-    ...>&inv -> b
-    ...>%b -> con
-    ...>&con -> output
-    ...>" |> Dec20.Parse.modules() |> Dec20.Run.run(1)
-    {4, 4}
-    iex> "broadcaster -> a
-    ...>%a -> inv, con
-    ...>&inv -> b
-    ...>%b -> con
-    ...>&con -> output
-    ...>" |> Dec20.Parse.modules() |> Dec20.Run.run(4)
-    {17, 11}
-    """
-    def run(modules, n, trace \\ false) do
-      start(modules, trace)
-
-      answer = run_loop({n, trace})
-
-      stop(modules)
-
-      answer
-    end
-
-    defp run_loop({0, _}) do
-      receive do
-        {lo, hi} -> {lo, hi}
-      end
-    end
-
-    defp run_loop({n, trace}) do
-      receive do
-        {_, _} ->
-          if trace do
-            IO.puts("")
-          end
-
-          Modules.push_button()
-          run_loop({n - 1, trace})
-      end
+      _ ->
+        trackers
     end
   end
 
@@ -325,7 +218,17 @@ defmodule Dec20 do
   11687500
   """
   def a(input) do
-    {lo, hi} = input |> Parse.modules() |> Run.run(1000)
-    lo * hi
+    modules = input |> parse()
+    state = initial_state(modules)
+
+    {_, trackers} =
+      press_button(
+        modules,
+        state,
+        %{true => 0, false => 0},
+        1000
+      )
+
+    trackers[true] * trackers[false]
   end
 end
