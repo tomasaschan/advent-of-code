@@ -22,6 +22,7 @@ defmodule AoC.MixProject do
   defp deps do
     [
       {:elixir_math, "~> 0.1.2"},
+      {:matrix, "~> 0.3.2"},
       {:memoize, "~> 1.4"},
       {:priority_queue, "~> 1.0.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
