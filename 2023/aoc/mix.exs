@@ -22,8 +22,11 @@ defmodule AoC.MixProject do
   defp deps do
     [
       {:elixir_math, "~> 0.1.2"},
+      {:exla, "~> 0.7"},
+      {:matrex, "~>0.6.8"},
       {:matrix, "~> 0.3.2"},
       {:memoize, "~> 1.4"},
+      {:nx, "~> 0.7", config: [default_backend: EXLA.Backend]},
       {:priority_queue, "~> 1.0.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
