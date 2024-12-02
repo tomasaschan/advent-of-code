@@ -1,0 +1,86 @@
+{-# START_FILE package.yaml #-}
+name:                {{name}}
+version:             0.1.0.0
+github:              "tomasaschan/advent-of-code"
+license:             BSD-3-Clause
+author:              "Tomas Aschan"
+maintainer:          "1550920+tomasaschan@users.noreply.github.com"
+copyright:           "Tomas Aschan"
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  {{name}}-run:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - {{name}}
+
+tests:
+  {{ name }}-tests:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - {{name}}
+
+{-# START_FILE Setup.hs #-}
+import Distribution.Simple
+
+main = defaultMain
+
+{-# START_FILE src/Lib.hs #-}
+module Lib (
+    solve,
+) where
+
+solve :: String -> (String, String)
+solve input = (a, b)
+  where
+    a = case parse input of
+        Right parsed -> show parsed
+        Left err -> err
+
+    b = case parse input of
+        Right parsed -> show parsed
+        Left err -> err
+
+parse :: String -> Either String String
+parse = Right
+
+{-# START_FILE app/Main.hs #-}
+module Main (main) where
+
+import Lib
+
+main :: IO ()
+  input <- getContents
+  let (a,b) = solve input
+  putStrLn $ "a: " <> a
+  putStrLn $ "b: " <> b
+
+{-# START_FILE test/Spec.hs #-}
+main :: IO ()
+main = putStrLn "Test suite not yet implemented"
