@@ -159,10 +159,6 @@ defmodule Dec05 do
     |> Enum.min()
   end
 
-  @doc """
-  iex> 3 < :infinity
-  true
-  """
   def minimize_in_range(a, b, lo, _) when a >= b, do: {lo, 0}
 
   def minimize_in_range(a, b, lo, maps) do
