@@ -1,0 +1,13 @@
+#!/bin/bash
+
+d2=$(printf "%02d" $1)
+name=dec$d2
+
+stack new $name ./template/template.hsfiles
+
+sed -i "s/$name/Dec $1/" $name/test/LibSpec.hs
+find $name -name '*.hs' -not -path '*.stack-work*' -print0 | xargs -0 sed -i "s/Lib/Dec$d2/g"
+find $name -name 'Lib*.hs'| xargs rename Lib Dec$d2
+
+yq -i '.packages += ["'$name'"]' stack.yaml
+rm $name/stack.yaml

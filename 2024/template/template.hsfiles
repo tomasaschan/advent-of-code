@@ -45,6 +45,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - {{name}}
+    - hspec
 
 {-# START_FILE Setup.hs #-}
 import Distribution.Simple
@@ -76,11 +77,28 @@ module Main (main) where
 import Lib
 
 main :: IO ()
+main = do
   input <- getContents
   let (a,b) = solve input
   putStrLn $ "a: " <> a
   putStrLn $ "b: " <> b
 
 {-# START_FILE test/Spec.hs #-}
-main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+{-# OPTIONS_GHC -F -pgmF hspec-discover #-}
+
+{-# START_FILE test/LibSpec.hs #-}
+module LibSpec (spec) where
+
+import Lib
+import Test.Hspec
+
+spec :: Spec
+spec = describe "{{ name }}" $ do
+  let input = ""
+  let solution = solve input
+
+  it "should solve a" $ do
+    fst solution `shouldBe` "0"
+
+--  it "should solve b" $ do
+--    snd solution `shouldBe` "0"
