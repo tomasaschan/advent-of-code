@@ -1,12 +1,9 @@
-resolver: lts-22.39
-
+snapshot: lts-22.43
 packages:
-- dec01
-
-extra-deps: []
-
+  - dec01
+  - dec02
+# extra-deps: []
 # Override default flag values for local packages and extra-deps
 # flags: {}
-
 # Extra package databases containing global packages
 # extra-package-dbs: []
