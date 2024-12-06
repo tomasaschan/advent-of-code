@@ -1,4 +1,4 @@
-module Lib (
+module Dec01 (
     solve,
 ) where
 

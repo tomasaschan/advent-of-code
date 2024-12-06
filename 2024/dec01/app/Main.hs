@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+import Dec01
 
 main :: IO ()
 main = do

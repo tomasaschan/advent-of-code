@@ -20,7 +20,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Dec01
   other-modules:
       Paths_dec01
   autogen-modules:
@@ -44,21 +44,6 @@ executable dec01-run
       Paths_dec01
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , dec01
-  default-language: Haskell2010
-
-test-suite dec01-tests
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_dec01
-  autogen-modules:
-      Paths_dec01
-  hs-source-dirs:
-      test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
