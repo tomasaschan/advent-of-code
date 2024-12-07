@@ -2,6 +2,7 @@ snapshot: lts-22.43
 packages:
   - dec01
   - dec02
+  - dec03
 # extra-deps: []
 # Override default flag values for local packages and extra-deps
 # flags: {}
