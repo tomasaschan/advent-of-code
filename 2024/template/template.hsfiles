@@ -90,7 +90,7 @@ spec = describe "{{ name }}" $ do
   let solution = solve input
 
 --  it "should solve real input" $ do
---    realInput <- readFile "../../inputs/2024/00.txt" -- you'll need to set the digit here...
+--    realInput <- readFile "../../inputs/2024/00.txt"
 --    solve realInput `shouldBe` ("0", "0")
 
   it "should solve a" $ do
