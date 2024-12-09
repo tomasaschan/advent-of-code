@@ -60,16 +60,8 @@ module Lib (
 solve :: String -> (String, String)
 solve input = (a, b)
   where
-    a = case parse input of
-        Right parsed -> show parsed
-        Left err -> err
-
-    b = case parse input of
-        Right parsed -> show parsed
-        Left err -> err
-
-parse :: String -> Either String String
-parse = Right
+    a = input
+    b = input
 
 {-# START_FILE app/Main.hs #-}
 module Main (main) where
@@ -97,8 +89,12 @@ spec = describe "{{ name }}" $ do
   let input = ""
   let solution = solve input
 
+--  it "should solve real input" $ do
+--    realInput <- readFile "../../inputs/2024/00.txt" -- you'll need to set the digit here...
+--    solve realInput `shouldBe` ("0", "0")
+
   it "should solve a" $ do
     fst solution `shouldBe` "0"
 
---  it "should solve b" $ do
---    snd solution `shouldBe` "0"
+--   it "should solve b" $ do
+--     snd solution `shouldBe` "0"
