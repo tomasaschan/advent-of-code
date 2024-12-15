@@ -23,6 +23,8 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - helpers
 
 executables:
   {{name}}-run:
@@ -34,6 +36,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - {{name}}
+    - helpers
 
 tests:
   {{ name }}-tests:
@@ -45,6 +48,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - {{name}}
+    - helpers
     - hspec
 
 {-# START_FILE Setup.hs #-}

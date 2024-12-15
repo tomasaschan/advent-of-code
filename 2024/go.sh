@@ -3,4 +3,4 @@
 d2=$(printf "%02d" $1)
 name=dec$d2
 
-stack build $name --file-watch --test --exec "bash -c \"stack exec $name-run < ../inputs/2024/$d2.txt\""
+stack build helpers $name --file-watch --test --exec "bash -c \"stack exec $name-run < ../inputs/2024/$d2.txt\""
