@@ -9,21 +9,16 @@ solve :: String -> (String, String)
 solve input = (show a, show b)
  where
   parsed = fmap parseOne . lines $ input
-  a = totalCalibrationResult isPossiblyTrue parsed
-  b = totalCalibrationResult isPossiblyTrueWithConcat parsed
+  a = totalCalibrationResult (isPossiblyTrue [(+), (*)]) parsed
+  b = totalCalibrationResult (isPossiblyTrue [(+), (*), (<||>)]) parsed
 
 totalCalibrationResult :: (Int -> Int -> [Int] -> Bool) -> [(Int, [Int])] -> Int
 totalCalibrationResult f = sum . fmap fst . filter (uncurry $ f 0)
 
-isPossiblyTrue :: Int -> Int -> [Int] -> Bool
-isPossiblyTrue acc target [] = target == acc
-isPossiblyTrue acc target (_ : _) | target < acc = False
-isPossiblyTrue acc target (x : xs) = isPossiblyTrue (acc + x) target xs || isPossiblyTrue (acc * x) target xs
-
-isPossiblyTrueWithConcat :: Int -> Int -> [Int] -> Bool
-isPossiblyTrueWithConcat acc target [] = target == acc
-isPossiblyTrueWithConcat acc target (_ : _) | target < acc = False
-isPossiblyTrueWithConcat acc target (x : xs) = isPossiblyTrueWithConcat (acc + x) target xs || isPossiblyTrueWithConcat (acc * x) target xs || isPossiblyTrueWithConcat (acc <||> x) target xs
+isPossiblyTrue :: [Int -> Int -> Int] -> Int -> Int -> [Int] -> Bool
+isPossiblyTrue _ acc target [] = target == acc
+isPossiblyTrue _ acc target (_ : _) | target < acc = False
+isPossiblyTrue ops acc target (x : xs) = any (\op -> isPossiblyTrue ops (op acc x) target xs) ops
 
 (<||>) :: Int -> Int -> Int
 a <||> b = a' + b
