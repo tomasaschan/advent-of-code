@@ -5,9 +5,9 @@ module Dec06 (
   parseInput,
 ) where
 
-import Data.Grid
 import Data.Map.Strict as Map
 import Data.Set as Set
+import Helpers.Data.Grid
 
 solve :: String -> (String, String)
 solve input = (a, b)
