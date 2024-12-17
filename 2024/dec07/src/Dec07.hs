@@ -1,10 +1,9 @@
 module Dec07 (
   solve,
   (<||>),
-  digits,
 ) where
 
-import GHC.Float (int2Double)
+import Helpers.Data.Int (digits)
 
 solve :: String -> (String, String)
 solve input = (show a, show b)
@@ -32,9 +31,6 @@ a <||> b = a' + b
   m :: Int
   m = digits b
   a' = a * (10 ^ m)
-
-digits :: Int -> Int
-digits = (+ 1) . floor . logBase 10 . int2Double
 
 parseOne :: String -> (Int, [Int])
 parseOne s = (read a, fmap read . words . tail $ b)

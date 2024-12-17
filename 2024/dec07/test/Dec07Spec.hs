@@ -29,16 +29,6 @@ spec = describe "Dec 7" $ do
       2 <||> 30 `shouldBe` 230
       2 <||> 300 `shouldBe` 2300
 
-  describe "digits" $ do
-    it "1 has 1 digit" $ do
-      digits 1 `shouldBe` 1
-    it "12 has 2 digits" $ do
-      digits 12 `shouldBe` 2
-    it "123 has 3 digits" $ do
-      digits 123 `shouldBe` 3
-    it "1234 has 4 digits" $ do
-      digits 1234 `shouldBe` 4
-
   it "should solve real input" $ do
     realInput <- readFile "../../inputs/2024/07.txt"
     let (a, b) = solve realInput
