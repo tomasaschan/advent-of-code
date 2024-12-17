@@ -21,11 +21,7 @@ isPossiblyTrue _ acc target (_ : _) | target < acc = False
 isPossiblyTrue ops acc target (x : xs) = any (\op -> isPossiblyTrue ops (op acc x) target xs) ops
 
 (<||>) :: Int -> Int -> Int
-a <||> b = a' + b
- where
-  m :: Int
-  m = digits b
-  a' = a * (10 ^ m)
+a <||> b = a * (10 ^ digits b) + b
 
 parseOne :: String -> (Int, [Int])
 parseOne s = (read a, fmap read . words . tail $ b)
