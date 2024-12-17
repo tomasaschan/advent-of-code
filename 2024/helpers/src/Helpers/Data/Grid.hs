@@ -1,4 +1,4 @@
-module Data.Grid (World, Grid, parse) where
+module Helpers.Data.Grid (World, Grid, parse) where
 
 import Data.Map as Map
 

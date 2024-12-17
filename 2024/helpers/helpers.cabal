@@ -20,7 +20,8 @@ source-repository head
 
 library
   exposed-modules:
-      Data.Grid
+      Helpers.Data.Grid
+      Helpers.Data.Int
   other-modules:
       Paths_helpers
   autogen-modules:
@@ -37,7 +38,8 @@ test-suite helpers-tests
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Data.GridSpec
+      Helpers.Data.GridSpec
+      Helpers.Data.IntSpec
       Paths_helpers
   autogen-modules:
       Paths_helpers
