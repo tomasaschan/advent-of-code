@@ -1,23 +1,22 @@
 module Dec09 (solve) where
 
-import Data.Foldable (Foldable (toList))
+import Data.Bifunctor (bimap)
 import Data.List (intercalate)
 import Data.Sequence as S
+import Data.Tuple.Extra (dupe)
+import Debug.Trace
 
 solve :: String -> (String, String)
-solve input = (a input, b)
+solve = bimap a b . dupe
   where
     a = show . checksum . shiftBlocks . parse
-    b = ""
+    b = show . checksum . shiftFiles . parse
 
 data Segment = File Int Int | Free Int deriving (Eq)
 
 instance Show Segment where
   show (Free n) = intercalate "" $ Prelude.replicate n "."
   show (File n i) = intercalate "" $ Prelude.replicate n (show i)
-
-showS :: Seq Segment -> String
-showS = intercalate "" . toList . fmap show
 
 len :: Segment -> Int
 len (Free n) = n
@@ -47,6 +46,27 @@ shiftBlocks' ((Free n :<| blocks) :|> File m d) prefix suffix | n < m = shiftBlo
 -- empty at start, file at end, exact fit; shift all
 shiftBlocks' ((Free n :<| blocks) :|> File _ d) prefix suffix = shiftBlocks' blocks (prefix :|> File n d) (Free n :<| suffix)
 shiftBlocks' (Free n :<| blocks) prefix suffix = shiftBlocks' blocks (prefix :|> Free n) suffix
+
+shiftFiles :: Seq Segment -> Seq Segment
+shiftFiles = shiftFiles' Empty Empty
+
+shiftFiles' :: Seq Segment -> Seq Segment -> Seq Segment -> Seq Segment
+shiftFiles' prefix suffix Empty = prefix >< suffix
+-- just one file left; it apparently could not be shifted, so move it to suffix
+shiftFiles' prefix suffix (File n d :<| Empty) = shiftFiles' Empty (File n d :<| suffix) prefix
+-- file at start, shift to prefix
+shiftFiles' prefix suffix (File n d :<| segments) = shiftFiles' (prefix :|> File n d) suffix segments
+-- empty at end, shift to suffix
+shiftFiles' prefix suffix (segments :|> Free n) = shiftFiles' prefix (Free n :<| suffix) segments
+-- more empty at start than file at end; shift file and start over
+shiftFiles' prefix suffix ((Free n :<| segments) :|> File m d) | n > m = shiftFiles' Empty (Free m :<| suffix) ((prefix :|> File m d :|> Free (n - m)) >< segments)
+-- less empty at start than file at end; shift space to prefix and move on
+shiftFiles' prefix suffix ((Free n :<| segments) :|> File m d) | n < m = shiftFiles' (prefix :|> Free n) suffix (segments :|> File m d)
+-- exact fit; shift file and start over
+shiftFiles' prefix suffix ((Free n :<| segments) :|> File m d) | m == n = shiftFiles' Empty (Free n :<| suffix) ((prefix :|> File m d) >< segments)
+shiftFiles' prefix suffix segments = trace "unmatched state:" (const $ const $ const Empty) prefix suffix segments
+
+-- shiftFiles' prefix suffix (Free n :<| blocks) = shiftFiles' (prefix :|> Free n) suffix blocks
 
 checksum :: Seq Segment -> Int
 checksum = sum . fmap check . Prelude.zip [0 ..] . blocks

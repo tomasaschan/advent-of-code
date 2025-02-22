@@ -25,6 +25,7 @@ library:
   dependencies:
     - helpers
     - containers
+    - extra
 
 executables:
   dec09-run:

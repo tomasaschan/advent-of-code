@@ -16,4 +16,4 @@ spec = describe "Dec 9" $ do
 
   it "should solve real input" $ do
     realInput <- readFile "../../inputs/2024/09.txt"
-    solve realInput `shouldBe` ("6366665108136", "")
+    solve realInput `shouldBe` ("6366665108136", "6398065450842")
