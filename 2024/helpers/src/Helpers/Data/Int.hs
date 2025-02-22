@@ -1,6 +1,7 @@
-module Helpers.Data.Int (
-  digits,
-) where
+module Helpers.Data.Int
+  ( digits,
+  )
+where
 
 import GHC.Float (int2Double)
 
