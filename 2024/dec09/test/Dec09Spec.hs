@@ -11,11 +11,9 @@ spec = describe "Dec 9" $ do
   it "should solve a" $ do
     fst solution `shouldBe` "1928"
 
--- fst solution `shouldBe` "1928"
+  it "should solve b" $ do
+    snd solution `shouldBe` "2858"
 
---   it "should solve b" $ do
---     snd solution `shouldBe` "0"
-
--- it "should solve real input" $ do
---   realInput <- readFile "../../inputs/2024/09.txt"
---   solve realInput `shouldBe` ("0", "0")
+  it "should solve real input" $ do
+    realInput <- readFile "../../inputs/2024/09.txt"
+    solve realInput `shouldBe` ("6366665108136", "")
