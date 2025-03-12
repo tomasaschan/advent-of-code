@@ -53,34 +53,40 @@ neighbors (x, y) = [(x + dx, y + dy) | dx <- [-1, 0, 1], dy <- [-1, 0, 1], (dx =
 bounds :: Sparse a -> (Int, Int, Int, Int)
 bounds (Sparse w h _) = (0, w - 1, 0, h - 1)
 
+instance {-# OVERLAPPING #-} Show (Grid ()) where
+  show = _showGrid (const ".")
+
+instance {-# OVERLAPPING #-} Show (Grid String) where
+  show = _showGrid id
+
 instance {-# OVERLAPPING #-} Show (Grid Char) where
-  show (W g) = unlines $ fmap row [ylo .. yhi]
-    where
-      xlo = minimum . fmap fst $ Map.keys g
-      xhi = maximum . fmap fst $ Map.keys g
-      ylo = minimum . fmap snd $ Map.keys g
-      yhi = maximum . fmap snd $ Map.keys g
-      row y = [g Map.! (x, y) | x <- [xlo .. xhi]]
+  show = _showGrid (: [])
 
 instance (Show a) => Show (Grid a) where
-  show (W g) = unlines $ fmap row [ylo .. yhi]
-    where
-      xlo = minimum . fmap fst $ Map.keys g
-      xhi = maximum . fmap fst $ Map.keys g
-      ylo = minimum . fmap snd $ Map.keys g
-      yhi = maximum . fmap snd $ Map.keys g
-      row y = intercalate "" [show $ g Map.! (x, y) | x <- [xlo .. xhi]]
+  show = _showGrid show
+
+instance {-# OVERLAPPING #-} Show (Sparse ()) where
+  show = _showSparse (const ".")
 
 instance {-# OVERLAPPING #-} Show (Sparse String) where
-  show = _show id
+  show = _showSparse id
 
 instance {-# OVERLAPPING #-} Show (Sparse Char) where
-  show = _show (: [])
+  show = _showSparse (: [])
 
 instance (Show a) => Show (Sparse a) where
-  show = _show show
+  show = _showSparse show
 
-_show :: (a -> String) -> Sparse a -> String
-_show f (Sparse w h (W g)) = unlines $ fmap row [0 .. h - 1]
+_showSparse :: (a -> String) -> Sparse a -> String
+_showSparse f (Sparse w h (W g)) = unlines $ fmap row [0 .. h - 1]
   where
     row y = intercalate "" $ fmap (\x -> maybe " " f (Map.lookup (x, y) g)) [0 .. w - 1]
+
+_showGrid :: (a -> String) -> Grid a -> String
+_showGrid f (W g) = unlines $ fmap row [ylo .. yhi]
+  where
+    xlo = minimum . fmap fst $ Map.keys g
+    xhi = maximum . fmap fst $ Map.keys g
+    ylo = minimum . fmap snd $ Map.keys g
+    yhi = maximum . fmap snd $ Map.keys g
+    row y = intercalate "" . fmap (maybe " " f) $ [g Map.!? (x, y) | x <- [xlo .. xhi]]

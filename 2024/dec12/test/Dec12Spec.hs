@@ -16,6 +16,28 @@ spec = describe "Dec 12" $ do
       it "should solve a" $ do
         fst (solve input) `shouldBe` "140"
 
+      it "should solve b" $ do
+        snd (solve input) `shouldBe` "80"
+
+      describe "calculating sides" $ do
+        let plots = findPlots' $ parse' input
+        let plot c = head . fmap fst . filter ((== c) . snd) $ plots
+
+        it "plot A" $ do
+          sides (plot 'A') `shouldBe` 4
+
+        it "plot B" $ do
+          sides (plot 'B') `shouldBe` 4
+
+        it "plot C" $ do
+          sides (plot 'C') `shouldBe` 8
+
+        it "plot D" $ do
+          sides (plot 'D') `shouldBe` 4
+
+        it "plot E" $ do
+          sides (plot 'E') `shouldBe` 4
+
     describe "second" $ do
       let input =
             "OOOOO\n\
@@ -26,6 +48,9 @@ spec = describe "Dec 12" $ do
 
       it "should solve a" $ do
         fst (solve input) `shouldBe` "772"
+
+      it "should solve b" $ do
+        snd (solve input) `shouldBe` "436"
 
     describe "third" $ do
       let input =
@@ -43,9 +68,29 @@ spec = describe "Dec 12" $ do
       it "should solve a" $ do
         fst (solve input) `shouldBe` "1930"
 
-  --   it "should solve b" $ do
-  --     snd solution `shouldBe` "0"
+    describe "fourth" $ do
+      let input =
+            "EEEEE\n\
+            \EXXXX\n\
+            \EEEEE\n\
+            \EXXXX\n\
+            \EEEEE\n"
+
+      it "should solve b" $ do
+        snd (solve input) `shouldBe` "236"
+
+    describe "fifth" $ do
+      let input =
+            "AAAAAA\n\
+            \AAABBA\n\
+            \AAABBA\n\
+            \ABBAAA\n\
+            \ABBAAA\n\
+            \AAAAAA\n"
+
+      it "should solve b" $ do
+        snd (solve input) `shouldBe` "368"
 
   it "should solve real input" $ do
     realInput <- readFile "../../inputs/2024/12.txt"
-    solve realInput `shouldBe` ("1359028", "0")
+    solve realInput `shouldBe` ("1359028", "839780")
