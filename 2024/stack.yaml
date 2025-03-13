@@ -13,6 +13,7 @@ packages:
   - dec10
   - dec11
   - dec12
+  - dec13
 # extra-deps: []
 # Override default flag values for local packages and extra-deps
 # flags: {}
