@@ -1,5 +1,11 @@
 module Dec15
   ( solve,
+    State (..),
+    advance,
+    next',
+    done,
+    coordinateSum,
+    parse,
   )
 where
 
@@ -57,13 +63,20 @@ data State = State
 
 instance Show State where
   show State {walls = ws, boxes = bs, robot = r, instructions = instrs} =
-    concatMap show instrs ++ "\n" ++ unlines rows
+    unlines rows ++ "\n\n\n" ++ concatMap show instrs ++ "\n\n" ++ show (coordinateSum bs)
     where
       rows = [row y | y <- [0 .. maxY]]
       row y = [at x y | x <- [0 .. maxX]]
 
+      i = case instrs of
+        (U : _) -> '^'
+        (D : _) -> 'v'
+        (L : _) -> '<'
+        (R : _) -> '>'
+        [] -> '@'
+
       at x y
-        | (x, y) == r = '@'
+        | (x, y) == r = i
         | (x, y) `Set.member` bs = 'O'
         | (x, y) `Set.member` ws = '#'
         | otherwise = ' '
@@ -71,40 +84,40 @@ instance Show State where
       maxX = fst $ maximumBy (comparing fst) ws
       maxY = snd $ maximumBy (comparing snd) ws
 
+done :: State -> Bool
+done State {instructions = []} = True
+done _ = False
+
 advance :: State -> State
 advance state@State {instructions = []} = state
-advance
-  state@State
-    { robot = r,
-      instructions = (i : rest),
-      walls = ws,
-      boxes = bs
-    } = advance next'
-    where
-      dp = case i of
-        U -> (0, -1)
-        D -> (0, 1)
-        L -> (-1, 0)
-        R -> (1, 0)
+advance state@State {instructions = (_ : _)} = advance (next' state)
 
-      next' = maybe (state {instructions = rest}) (shift state) (target r)
+next' :: State -> State
+next' state@State {instructions = []} = state
+next' state@State {robot = r, instructions = (i : rest), walls = ws, boxes = bs} = maybe (state {instructions = rest}) (shift state) (target r)
+  where
+    dp = case i of
+      U -> (0, -1)
+      D -> (0, 1)
+      L -> (-1, 0)
+      R -> (1, 0)
 
-      target :: Pos -> Maybe Pos
-      target p | p == r = target (p ⊕ dp)
-      target p | p `Set.member` ws = Nothing
-      target p | p `Set.member` bs = target (p ⊕ dp)
-      target p = Just p
+    target :: Pos -> Maybe Pos
+    target p | p == r = target (p ⊕ dp)
+    target p | p `Set.member` ws = Nothing
+    target p | p `Set.member` bs = target (p ⊕ dp)
+    target p = Just p
 
-      shift :: State -> Pos -> State
-      shift s' p | p' == r = s' {robot = p, instructions = rest}
-        where
-          p' = p ⊖ dp
-      shift s' p | p' `Set.member` bs = shift s'' p'
-        where
-          p' = p ⊖ dp
-          bx' = Set.insert p $ Set.delete p' (boxes s')
-          s'' = s' {boxes = bx'}
-      shift s' p = error $ "invalid move " ++ show i ++ "@" ++ show p ++ "; cannot shift " ++ show (p ⊖ dp) ++ " to " ++ show p ++ "\n\n" ++ show s'
+    shift :: State -> Pos -> State
+    shift s' p | p' == r = s' {robot = p, instructions = rest}
+      where
+        p' = p ⊖ dp
+    shift s' p | p' `Set.member` bs = shift s'' p'
+      where
+        p' = p ⊖ dp
+        bx' = Set.insert p $ Set.delete p' (boxes s')
+        s'' = s' {boxes = bx'}
+    shift s' p = error $ "invalid move " ++ show i ++ "@" ++ show p ++ "; cannot shift " ++ show (p ⊖ dp) ++ " to " ++ show p ++ "\n\n" ++ show s'
 
 coordinateSum :: Boxes -> Int
 coordinateSum = sum . map (\(x, y) -> x + 100 * y) . Set.toList

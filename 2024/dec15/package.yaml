@@ -23,10 +23,15 @@ ghc-options:
 library:
   source-dirs: src
   dependencies:
+    - brick
     - helpers
     - containers
+    - microlens
+    - microlens-mtl
+    - microlens-th
     - parsec
     - split
+    - vty
 
 executables:
   dec15-run:
@@ -38,6 +43,7 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - dec15
+      - brick
       - helpers
 
 tests:

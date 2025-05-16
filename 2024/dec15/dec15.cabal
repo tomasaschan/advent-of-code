@@ -21,6 +21,7 @@ source-repository head
 library
   exposed-modules:
       Dec15
+      TUI
   other-modules:
       Paths_dec15
   autogen-modules:
@@ -30,10 +31,15 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , brick
     , containers
     , helpers
+    , microlens
+    , microlens-mtl
+    , microlens-th
     , parsec
     , split
+    , vty
   default-language: Haskell2010
 
 executable dec15-run
@@ -47,6 +53,7 @@ executable dec15-run
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , brick
     , dec15
     , helpers
   default-language: Haskell2010
