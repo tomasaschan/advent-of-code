@@ -13,14 +13,25 @@ instance TUI.State S where
   done = Dec15.done . unS
   draw s = [str . show . unS $ s]
 
+run :: [String] -> IO ()
+-- no args; run non-interactive with input from stdin
+run [] = do
+  input <- getContents
+  let (a, b) = Dec15.solve input
+  putStrLn $ "a: " <> a
+  putStrLn $ "b: " <> b
+
+-- one arg; run interactive with input from the indicated file
+run [f] = do
+  input <- readFile f
+  let initial = parse input
+  final <- TUI.run (S initial)
+  print (coordinateSum . boxes $ unS final)
+
+-- error: too many args
+run _ = error "Usage: dec15 [<input-file>]\nIf no file is provided, input is read from stdin.\n\nerror: Too many arguments."
+
 main :: IO ()
 main = do
   args <- getArgs
-  let filename = case args of
-        [f] -> f
-        _ -> error "Usage: dec15 <input file>"
-  input <- readFile filename
-  let initial = parse input
-  final <- TUI.run (S initial)
-
-  print (coordinateSum . boxes $ unS final)
+  run args

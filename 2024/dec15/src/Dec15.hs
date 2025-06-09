@@ -15,12 +15,11 @@ import Data.List.Split (splitOn)
 import Data.Ord (comparing)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Debug.Trace (traceShowId)
 
 solve :: String -> (String, String)
 solve input = (a, b)
   where
-    a = show . coordinateSum . boxes . traceShowId $ advance $ parse input
+    a = show . coordinateSum . boxes . advance $ parse input
     b = ""
 
 type Pos = (Int, Int)
