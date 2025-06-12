@@ -42,7 +42,7 @@ handleEvent (VtyEvent (EvKey KRight _)) = do
   if done s
     then halt
     else do
-      let s' = advance s
+      let s' = next s
       state .= s'
       history .= (s : h)
 handleEvent (VtyEvent (EvKey KLeft _)) = do
