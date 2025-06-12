@@ -24,3 +24,6 @@ spec = describe "Dec 15" $ do
   describe "real input" $ withInput "../../inputs/2024/15.txt" $ do
     it "should solve a" $ \solution -> do
       fst solution `shouldBe` "1514333"
+
+    it "should solve b" $ \solution -> do
+      snd solution `shouldBe` "1528453"
