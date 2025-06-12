@@ -13,6 +13,8 @@ import Data.Foldable (maximumBy)
 import qualified Data.List
 import Data.List.Split (splitOn)
 import Data.Ord (comparing)
+import Data.Sequence (Seq ((:<|), (:|>)))
+import qualified Data.Sequence as Seq
 import Data.Set (Set)
 import qualified Data.Set as Set
 
@@ -30,13 +32,13 @@ type Boxes = Set Pos
 
 type Robot = Pos
 
-(⊕) :: Pos -> Pos -> Pos
-(⊕) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-
-(⊖) :: Pos -> Pos -> Pos
-(⊖) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
-
 data Direction = U | D | L | R deriving (Eq)
+
+m :: Direction -> Pos -> Pos
+m U (x, y) = (x, y - 1)
+m D (x, y) = (x, y + 1)
+m L (x, y) = (x - 1, y)
+m R (x, y) = (x + 1, y)
 
 instance Show Direction where
   show U = "^"
@@ -89,34 +91,27 @@ done _ = False
 
 advance :: State -> State
 advance state@State {instructions = []} = state
-advance state@State {instructions = (_ : _)} = advance (next' state)
+advance state = advance (next' state)
 
 next' :: State -> State
 next' state@State {instructions = []} = state
-next' state@State {robot = r, instructions = (i : rest), walls = ws, boxes = bs} = maybe (state {instructions = rest}) (shift state) (target r)
+next' state@State {instructions = (i : rest)} = maybe (state {instructions = rest}) shift candidates
   where
-    dp = case i of
-      U -> (0, -1)
-      D -> (0, 1)
-      L -> (-1, 0)
-      R -> (1, 0)
+    candidates = boxesToMove state
+    shift bs =
+      let shifted = Set.map (m i) bs
+          bs' = Set.union shifted (Set.difference (boxes state) bs)
+       in state {instructions = rest, robot = m i (robot state), boxes = bs'}
 
-    target :: Pos -> Maybe Pos
-    target p | p == r = target (p ⊕ dp)
-    target p | p `Set.member` ws = Nothing
-    target p | p `Set.member` bs = target (p ⊕ dp)
-    target p = Just p
-
-    shift :: State -> Pos -> State
-    shift s' p | p' == r = s' {robot = p, instructions = rest}
-      where
-        p' = p ⊖ dp
-    shift s' p | p' `Set.member` bs = shift s'' p'
-      where
-        p' = p ⊖ dp
-        bx' = Set.insert p $ Set.delete p' (boxes s')
-        s'' = s' {boxes = bx'}
-    shift s' p = error $ "invalid move " ++ show i ++ "@" ++ show p ++ "; cannot shift " ++ show (p ⊖ dp) ++ " to " ++ show p ++ "\n\n" ++ show s'
+boxesToMove :: State -> Maybe Boxes
+boxesToMove State {instructions = []} = Nothing
+boxesToMove State {robot = r, walls = ws, boxes = bs, instructions = (i : _)} = boxesToMove' (Seq.singleton (m i r)) Set.empty
+  where
+    boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
+    boxesToMove' Seq.Empty cs = Just cs
+    boxesToMove' (next :<| _) _ | next `Set.member` ws = Nothing
+    boxesToMove' (b :<| q) cs | b `Set.member` bs = boxesToMove' (q :|> m i b) (Set.insert b cs)
+    boxesToMove' (_ :<| q) cs = boxesToMove' q cs
 
 coordinateSum :: Boxes -> Int
 coordinateSum = sum . map (\(x, y) -> x + 100 * y) . Set.toList
