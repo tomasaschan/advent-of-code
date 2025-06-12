@@ -14,17 +14,16 @@ import Data.Foldable (maximumBy)
 import qualified Data.List
 import Data.List.Split (splitOn)
 import Data.Ord (comparing)
-import Data.Sequence (Seq ((:<|), (:|>)))
+import Data.Sequence (Seq ((:<|), (:|>)), (|>))
 import qualified Data.Sequence as Seq
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Debug.Trace (traceShowId)
 
 solve :: String -> (String, String)
 solve input = (a, b)
   where
     a = show . coordinateSum . boxes . advance $ parse Normal input
-    b = ""
+    b = show . coordinateSum . boxes . advance $ parse Wide input
 
 type Pos = (Int, Int)
 
@@ -112,12 +111,42 @@ next' state@State {instructions = (i : rest)} = maybe (state {instructions = res
 
 boxesToMove :: State -> Maybe Boxes
 boxesToMove State {instructions = []} = Nothing
-boxesToMove State {robot = r, walls = ws, boxes = bs, instructions = (i : _)} = boxesToMove' (Seq.singleton (m i r)) Set.empty
+boxesToMove State {width = Normal, robot = r, walls = ws, boxes = bs, instructions = (i : _)} = boxesToMove' (Seq.singleton (m i r)) Set.empty
   where
     boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
     boxesToMove' Seq.Empty cs = Just cs
     boxesToMove' (next :<| _) _ | next `Set.member` ws = Nothing
     boxesToMove' (b :<| q) cs | b `Set.member` bs = boxesToMove' (q :|> m i b) (Set.insert b cs)
+    boxesToMove' (_ :<| q) cs = boxesToMove' q cs
+boxesToMove State {width = Wide, robot = r, walls = ws, boxes = bs, instructions = (U : _)} = boxesToMove' (Seq.singleton (m U r)) Set.empty
+  where
+    boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
+    boxesToMove' Seq.Empty cs = Just cs
+    boxesToMove' (b :<| _) _ | b `Set.member` ws = Nothing
+    boxesToMove' (b :<| q) cs | b `Set.member` bs = boxesToMove' (q |> m U b |> m U (m R b)) (Set.insert b cs)
+    boxesToMove' (b :<| q) cs | m L b `Set.member` bs = boxesToMove' (q |> m U (m L b) |> m U b) (Set.insert (m L b) cs)
+    boxesToMove' (_ :<| q) cs = boxesToMove' q cs
+boxesToMove State {width = Wide, robot = r, walls = ws, boxes = bs, instructions = (D : _)} = boxesToMove' (Seq.singleton (m D r)) Set.empty
+  where
+    boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
+    boxesToMove' Seq.Empty cs = Just cs
+    boxesToMove' (b :<| _) _ | b `Set.member` ws = Nothing
+    boxesToMove' (b :<| q) cs | b `Set.member` bs = boxesToMove' (q |> m D b |> m D (m R b)) (Set.insert b cs)
+    boxesToMove' (b :<| q) cs | m L b `Set.member` bs = boxesToMove' (q |> m D (m L b) |> m D b) (Set.insert (m L b) cs)
+    boxesToMove' (_ :<| q) cs = boxesToMove' q cs
+boxesToMove State {width = Wide, robot = r, walls = ws, boxes = bs, instructions = (L : _)} = boxesToMove' (Seq.singleton (m L r)) Set.empty
+  where
+    boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
+    boxesToMove' Seq.Empty cs = Just cs
+    boxesToMove' (b :<| _) _ | b `Set.member` ws = Nothing
+    boxesToMove' (b :<| q) cs | m L b `Set.member` bs = boxesToMove' (q |> m L (m L b)) (Set.insert (m L b) cs)
+    boxesToMove' (_ :<| q) cs = boxesToMove' q cs
+boxesToMove State {width = Wide, robot = r, walls = ws, boxes = bs, instructions = (R : _)} = boxesToMove' (Seq.singleton (m R r)) Set.empty
+  where
+    boxesToMove' :: Seq Pos -> Boxes -> Maybe Boxes
+    boxesToMove' Seq.Empty cs = Just cs
+    boxesToMove' (b :<| _) _ | b `Set.member` ws = Nothing
+    boxesToMove' (b :<| q) cs | b `Set.member` bs = boxesToMove' (q |> m R (m R b)) (Set.insert b cs)
     boxesToMove' (_ :<| q) cs = boxesToMove' q cs
 
 coordinateSum :: Boxes -> Int
