@@ -21,15 +21,15 @@ run [] = do
   putStrLn $ "a: " <> a
   putStrLn $ "b: " <> b
 
--- one arg; run interactive with input from the indicated file
-run [f] = do
+-- two args; run interactive at indicated width with input from the indicated file
+run [w, f] = do
   input <- readFile f
-  let initial = parse input
+  let initial = parse (read w) input
   final <- TUI.run (S initial)
   print (coordinateSum . boxes $ unS final)
 
 -- error: too many args
-run _ = error "Usage: dec15 [<input-file>]\nIf no file is provided, input is read from stdin.\n\nerror: Too many arguments."
+run _ = error "Usage: dec15 [<width> <input-file>]\nIf no arguments are provided, input is read from stdin and both a and b are solved.\n\nerror: Too many arguments."
 
 main :: IO ()
 main = do
