@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 
-name:           helpers
+name:           dec16
 version:        0.1.0.0
 homepage:       https://github.com/tomasaschan/advent-of-code#readme
 bug-reports:    https://github.com/tomasaschan/advent-of-code/issues
@@ -20,38 +20,50 @@ source-repository head
 
 library
   exposed-modules:
-      Helpers.Algorithms.Djikstra
-      Helpers.Combinatorics
-      Helpers.Data.Grid
-      Helpers.Data.Int
+      Dec16
   other-modules:
-      Paths_helpers
+      Paths_dec16
   autogen-modules:
-      Paths_helpers
+      Paths_dec16
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
     , containers
-    , pqueue
-    , text
+    , extra
+    , helpers
   default-language: Haskell2010
 
-test-suite helpers-tests
+executable dec16-run
+  main-is: Main.hs
+  other-modules:
+      Paths_dec16
+  autogen-modules:
+      Paths_dec16
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , dec16
+    , helpers
+  default-language: Haskell2010
+
+test-suite dec16-tests
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Helpers.Data.GridSpec
-      Helpers.Data.IntSpec
-      Paths_helpers
+      Dec16Spec
+      Paths_dec16
   autogen-modules:
-      Paths_helpers
+      Paths_dec16
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , dec16
     , helpers
     , hspec
   default-language: Haskell2010
