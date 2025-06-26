@@ -15,7 +15,7 @@ module Helpers.Data.Grid
   )
 where
 
-import Data.List (intercalate)
+import Data.List (intercalate, uncons)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -39,7 +39,7 @@ data Sparse a = Sparse Int Int (Grid a) deriving (Eq)
 sparse :: (Char -> Maybe a) -> String -> Sparse a
 sparse f input = Sparse w h g
   where
-    w = length (head (lines input))
+    w = maybe 0 (length . fst) $ uncons (lines input)
     h = length (lines input)
     g = parse (,) f input
 
