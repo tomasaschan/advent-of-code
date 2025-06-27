@@ -4,18 +4,19 @@ module Dec16
 where
 
 import Data.Bifunctor (bimap)
+import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE (toList)
 import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Tuple.Extra (dupe)
-import Helpers.Algorithms.Djikstra (djikstra)
+import Helpers.Algorithms.Djikstra (djikstra, djikstrall)
 
 solve :: String -> (String, String)
 solve input = (a, b)
   where
     a = maybe "<no result found>" (show . fst) . findCheapestPath . parse $ input
-    b = ""
+    b = show . maybe 0 (countSeats . snd) . findCheapestPaths . parse $ input
 
 data Direction = North | East | South | West
   deriving (Show, Eq, Ord)
@@ -27,6 +28,12 @@ findCheapestPath problem = do
   (c, path) <- djikstra (neighbors problem) (isDone problem) $ initial (start problem)
   let path' = pos <$> NE.toList path
   return (c, path')
+
+findCheapestPaths :: Problem -> Maybe (Int, [NonEmpty (Pos, Direction)])
+findCheapestPaths problem = djikstrall (neighbors problem) (isDone problem) $ initial (start problem)
+
+countSeats :: [NonEmpty (Pos, Direction)] -> Int
+countSeats = Set.size . Set.fromList . concatMap (NE.toList . fmap fst)
 
 data Problem = Problem {walls :: Set Pos, start :: Pos, end :: Pos} deriving (Show)
 

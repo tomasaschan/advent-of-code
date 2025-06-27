@@ -29,4 +29,4 @@ spec = describe "Dec 16" $ do
       a `shouldBe` "127520"
 
     it "should solve b" $ \(_, b) -> do
-      b `shouldBe` "0"
+      b `shouldBe` "565"
