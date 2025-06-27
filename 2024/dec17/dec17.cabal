@@ -1,0 +1,72 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           dec17
+version:        0.1.0.0
+homepage:       https://github.com/tomasaschan/advent-of-code#readme
+bug-reports:    https://github.com/tomasaschan/advent-of-code/issues
+author:         Tomas Aschan
+maintainer:     1550920+tomasaschan@users.noreply.github.com
+copyright:      Tomas Aschan
+license:        BSD-3-Clause
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/tomasaschan/advent-of-code
+
+library
+  exposed-modules:
+      Computer
+      Dec17
+  other-modules:
+      Paths_dec17
+  autogen-modules:
+      Paths_dec17
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      array
+    , base >=4.7 && <5
+    , helpers
+    , parsec
+  default-language: Haskell2010
+
+executable dec17-run
+  main-is: Main.hs
+  other-modules:
+      Paths_dec17
+  autogen-modules:
+      Paths_dec17
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , dec17
+    , helpers
+  default-language: Haskell2010
+
+test-suite dec17-tests
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      ComputerSpec
+      Dec17Spec
+      Paths_dec17
+  autogen-modules:
+      Paths_dec17
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , dec17
+    , helpers
+    , hspec
+    , test-helpers
+  default-language: Haskell2010

@@ -1,6 +1,7 @@
 snapshot: lts-23.24
 packages:
   - helpers
+  - test-helpers
   - dec01
   - dec02
   - dec03
@@ -17,6 +18,7 @@ packages:
   - dec14
   - dec15
   - dec16
+  - dec17
 # extra-deps: []
 # Override default flag values for local packages and extra-deps
 # flags: {}
