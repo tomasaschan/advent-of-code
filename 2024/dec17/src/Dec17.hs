@@ -3,13 +3,19 @@ module Dec17
   )
 where
 
-import Computer (Int3, State, initialize, output, run)
+import Computer
+  ( Program,
+    State,
+    collectOutput,
+    newProgram,
+    newState,
+  )
 import Text.ParserCombinators.Parsec hiding (State)
 
 solve :: String -> (String, String)
 solve input = (a, b)
   where
-    a = either show (output . run) . parse' $ input
+    a = either show collectOutput . parse' $ input
     b = ""
 
 parse' :: String -> Either ParseError State
@@ -23,10 +29,10 @@ register' r = do
   n <- many1 digit <* newline
   return $ read n
 
-program' :: GenParser Char st [Int3]
+program' :: GenParser Char st Program
 program' = do
   values <- many1 (choice [try (many1 digit <* char ','), many1 digit]) <* newline
-  return $ fmap (toEnum . read) values
+  return $ newProgram $ fmap (toEnum . read) values
 
 state' :: GenParser Char st State
 state' = do
@@ -37,4 +43,4 @@ state' = do
 
   prog <- string "Program: " *> program'
 
-  return $ initialize prog a' b' c'
+  return $ newState prog a' b' c'

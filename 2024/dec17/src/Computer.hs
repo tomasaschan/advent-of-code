@@ -1,10 +1,11 @@
 module Computer
-  ( step,
-    State (..),
-    output,
+  ( State (..),
+    Program,
     Int3 (..),
-    initialize,
+    newState,
+    newProgram,
     run,
+    collectOutput,
   )
 where
 
@@ -14,20 +15,21 @@ import Data.List (intercalate)
 
 data Int3 = Zero | One | Two | Three | Four | Five | Six | Seven deriving (Show, Eq, Ord, Enum)
 
-data State = State {a :: Int, b :: Int, c :: Int, p :: Int, program :: Array Int Int3, _output :: [Int]} deriving (Show)
+type Program = Array Int Int3
 
-output :: State -> String
-output = intercalate "," . fmap show . reverse . _output
+data State = State {a :: Int, b :: Int, c :: Int, p :: Int, program :: Program} deriving (Show)
 
-initialize :: [Int3] -> Int -> Int -> Int -> State
-initialize prog a' b' c' =
+newProgram :: [Int3] -> Program
+newProgram prog = array (0, length prog - 1) (zip [0 ..] prog)
+
+newState :: Program -> Int -> Int -> Int -> State
+newState prog a' b' c' =
   State
     { a = a',
       b = b',
       c = c',
       p = 0,
-      program = array (0, length prog - 1) (zip [0 ..] prog),
-      _output = []
+      program = prog
     }
 
 type Operand = Int3
@@ -42,24 +44,40 @@ combo s Five = b s
 combo s Six = c s
 combo _ Seven = error "use of reserved operand 7 in combo operator"
 
-run :: State -> State
-run s | p s < 0 = s
-run s | p s >= length (program s) - 1 = s
-run s = run $ step s
+halted :: State -> Bool
+halted s = p s < 0 || p s >= length (program s) - 1
 
-step :: State -> State
+collectOutput :: State -> String
+collectOutput s = intercalate "," . fmap show . reverse $ collectOutput' s []
+  where
+    collectOutput' s' o | halted s' = o
+    collectOutput' s' o =
+      case step s' of
+        NewState s'' -> collectOutput' s'' o
+        Output s'' o' -> collectOutput' s'' (o' : o)
+
+run :: State -> State
+run s | halted s = s
+run s = run s'
+  where
+    s' = case step s of
+      NewState s'' -> s''
+      Output s'' _ -> s''
+
+data StepResult = NewState State | Output State Int
+
+step :: State -> StepResult
 step s =
   let opr = program s ! (1 + p s)
-      op = case program s ! p s of
-        Zero -> adv
-        One -> bxl
-        Two -> bst
-        Three -> jnz
-        Four -> bxc
-        Five -> out
-        Six -> bdv
-        Seven -> cdv
-   in op s opr
+   in case program s ! p s of
+        Zero -> NewState $ adv s opr
+        One -> NewState $ bxl s opr
+        Two -> NewState $ bst s opr
+        Three -> NewState $ jnz s opr
+        Four -> NewState $ bxc s opr
+        Five -> uncurry Output $ out s opr
+        Six -> NewState $ bdv s opr
+        Seven -> NewState $ cdv s opr
 
 adv :: State -> Operand -> State
 adv s op = s'
@@ -95,11 +113,11 @@ bxc s _ = s'
     b' = b s `xor` c s
     s' = s {b = b', p = p s + 2}
 
-out :: State -> Operand -> State
-out s op = s'
+out :: State -> Operand -> (State, Int)
+out s op = (s', output')
   where
-    output' = (combo s op `mod` 8) : _output s
-    s' = s {_output = output', p = p s + 2}
+    output' = combo s op `mod` 8
+    s' = s {p = p s + 2}
 
 bdv :: State -> Operand -> State
 bdv s op = s'
