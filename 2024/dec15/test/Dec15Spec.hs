@@ -2,11 +2,7 @@ module Dec15Spec (spec) where
 
 import Dec15
 import Test.Hspec
-
-describeInput :: String -> String -> SpecWith (String, String) -> Spec
-describeInput description file =
-  describe description
-    . before (solve <$> readFile ("../../inputs/2024/" <> file))
+import Test.Helpers
 
 spec :: Spec
 spec = describe "Dec 15" $ do
