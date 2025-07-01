@@ -25,6 +25,7 @@ library:
   dependencies:
   - helpers
   - array
+  - containers
   - parsec
 
 executables:

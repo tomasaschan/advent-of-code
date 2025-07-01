@@ -32,6 +32,7 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , containers
     , helpers
     , parsec
   default-language: Haskell2010

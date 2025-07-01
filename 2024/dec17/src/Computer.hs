@@ -2,20 +2,24 @@ module Computer
   ( State (..),
     Program,
     Int3 (..),
+    StepResult (..),
     newState,
     newProgram,
-    run,
-    collectOutput,
+    step,
+    halted,
+    code,
   )
 where
 
-import Data.Array (Array, array, (!))
+import Data.Array (Array, array, elems, (!))
 import Data.Bits (xor)
-import Data.List (intercalate)
 
 data Int3 = Zero | One | Two | Three | Four | Five | Six | Seven deriving (Show, Eq, Ord, Enum)
 
 type Program = Array Int Int3
+
+code :: Program -> [Int]
+code = fmap fromEnum . elems
 
 data State = State {a :: Int, b :: Int, c :: Int, p :: Int, program :: Program} deriving (Show)
 
@@ -46,23 +50,6 @@ combo _ Seven = error "use of reserved operand 7 in combo operator"
 
 halted :: State -> Bool
 halted s = p s < 0 || p s >= length (program s) - 1
-
-collectOutput :: State -> String
-collectOutput s = intercalate "," . fmap show . reverse $ collectOutput' s []
-  where
-    collectOutput' s' o | halted s' = o
-    collectOutput' s' o =
-      case step s' of
-        NewState s'' -> collectOutput' s'' o
-        Output s'' o' -> collectOutput' s'' (o' : o)
-
-run :: State -> State
-run s | halted s = s
-run s = run s'
-  where
-    s' = case step s of
-      NewState s'' -> s''
-      Output s'' _ -> s''
 
 data StepResult = NewState State | Output State Int
 
