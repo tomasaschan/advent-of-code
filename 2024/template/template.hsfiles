@@ -49,7 +49,11 @@ tests:
     dependencies:
     - {{name}}
     - helpers
+    - test-helpers
     - hspec
+
+default-extensions:
+- OverloadedStrings
 
 {-# START_FILE Setup.hs #-}
 import Distribution.Simple
@@ -87,18 +91,17 @@ module LibSpec (spec) where
 
 import Lib
 import Test.Hspec
+import Test.Helpers
 
 spec :: Spec
 spec = describe "{{ name }}" $ do
-  let input = ""
-  let solution = solve input
+  describeInput "example" "00-example.txt" solve $ do
+    it "should solve a" $ \(a, _) -> do
+      a `shouldBe` "0"
 
-  it "should solve a" $ do
-    fst solution `shouldBe` "0"
+    it "should solve b" $ \(_, b) -> do
+      b `shouldBe` "0"
 
---   it "should solve b" $ do
---     snd solution `shouldBe` "0"
-
---   it "should solve real input" $ do
---     realInput <- readFile "../../inputs/2024/00.txt"
---     solve realInput `shouldBe` ("0", "0")
+  describeInput "real input" "00.txt" solve $ do
+    it "should solve a" $ \(a, _) -> do
+      a `shouldBe` "0"
