@@ -16,7 +16,7 @@ solve :: Pos -> Int -> String -> (String, String)
 solve bounds n = bimap a b . dupe . parse
   where
     a = maybe "<no path>" (show . subtract 1 . length) . bfs bounds . Set.fromList . take n
-    b = const ""
+    b = maybe "<no cutoff>" (\(x, y) -> show x <> "," <> show y) . findCutoff n bounds
 
 type Pos = (Int, Int)
 
@@ -44,6 +44,19 @@ bfs bounds fallen = bfs' (((0, 0) :| []) <| Empty) mempty
               (<= snd bounds) . snd
             ]
        in bfs' q' seen'
+
+findCutoff :: Int -> Pos -> [Pos] -> Maybe Pos
+findCutoff n bounds bytes = findCutoff' (Set.fromList . take (n - 1) $ bytes) (drop (n - 1) bytes) Nothing
+  where
+    findCutoff' :: Set Pos -> [Pos] -> Maybe (Set Pos) -> Maybe Pos
+    findCutoff' _ [] _ = Nothing
+    findCutoff' fallen (p : falling) Nothing =
+      case bfs bounds (Set.insert p fallen) of
+        Just path -> findCutoff' (Set.insert p fallen) falling (Just (foldl (flip Set.insert) mempty path))
+        Nothing -> Just p
+    findCutoff' fallen (p : falling) (Just known)
+      | p `Set.member` known = findCutoff' fallen (p : falling) Nothing
+      | otherwise = findCutoff' (Set.insert p fallen) falling (Just known)
 
 parse :: String -> [Pos]
 parse = fmap readLine . lines
