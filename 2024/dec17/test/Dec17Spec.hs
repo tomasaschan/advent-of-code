@@ -20,4 +20,3 @@ spec = describe "Dec 17" $ do
 
     it "should solve b" $ \(_, b) -> do
       b `shouldBe` "236555997372013"
-  return ()
