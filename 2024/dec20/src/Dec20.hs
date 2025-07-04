@@ -17,27 +17,32 @@ solve threshold input = (a, b)
     (track, start) = parse input
     measured = runWithoutCheats track start
 
-    cheats = findCheats measured
-
-    a = show . length . filter ((>= threshold) . snd) $ cheats
-    b = ""
+    a = show . length . filter ((>= threshold) . snd) $ findCheats 2 measured
+    b = show . length . filter ((>= threshold) . snd) $ findCheats 20 measured
 
 type Pos = (Int, Int)
 
 countByGains :: [(Pos, Int)] -> [(Int, Int)]
 countByGains = sortBy (comparing fst) . toList . foldr (\(_, gain) acc -> insertWith (+) gain 1 acc) mempty
 
-findCheats :: Map Pos Int -> [(Pos, Int)]
-findCheats m = concatMap (uncurry (findCheats' m)) (toList m)
+findCheats :: Int -> Map Pos Int -> [(Pos, Int)]
+findCheats t m = concatMap (uncurry findCheats') (toList m)
   where
-    findCheats' m (x, y) n = mapMaybe (validate m ((x, y), n)) (tunnel (x, y))
+    findCheats' (x, y) n = valids $ mapMaybe (reachable (x, y) n) (toList m)
+    reachable (x, y) n ((x', y'), n') =
+      let d = manhattan (x, y) (x', y')
+       in if d <= t && n' > n + d then Just ((x', y'), n' - n - d) else Nothing
 
-    validate m (p, n) p' =
-      case m !? p' of
-        Just n' | n' > n + 2 -> Just (p, n' - n - 2)
-        _ -> Nothing
+    manhattan (x, y) (x', y') = abs (x - x') + abs (y - y')
 
-    tunnel (x, y) = [(x + dx, y + dy) | dx <- [-2, 0, 2], dy <- [-2, 0, 2], (dx == 0) /= (dy == 0)]
+    valids = keepFirstOfConsecutive . sortBy (comparing snd)
+
+    keepFirstOfConsecutive :: [(Pos, Int)] -> [(Pos, Int)]
+    keepFirstOfConsecutive [] = []
+    keepFirstOfConsecutive [x] = [x]
+    keepFirstOfConsecutive ((p, n) : (p', n') : rest)
+      | n + 1 == n' && manhattan p p' == 1 = keepFirstOfConsecutive ((p, n) : rest)
+      | otherwise = (p, n) : keepFirstOfConsecutive ((p', n') : rest)
 
 runWithoutCheats :: Set Pos -> Pos -> Map Pos Int
 runWithoutCheats track start = go [(start, 0)] mempty

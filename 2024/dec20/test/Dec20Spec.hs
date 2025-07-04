@@ -16,3 +16,6 @@ spec = describe "Dec 20" $ do
   describeInput "real input" "20.txt" (solve 100) $ do
     it "should solve a" $ \(a, _) -> do
       a `shouldBe` "1395"
+
+    it "should solve b" $ \(_, b) -> do
+      b `shouldBe` "993178"
