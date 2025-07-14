@@ -10,9 +10,9 @@ spec = describe "Dec 21" $ do
     it "should solve a" $ \(a, _) -> do
       a `shouldBe` "126384"
 
-    it "should solve b" $ \(_, b) -> do
-      b `shouldBe` "0"
-
   describeInput "real input" "21.txt" solve $ do
     it "should solve a" $ \(a, _) -> do
       a `shouldBe` "123096"
+
+    it "should solve b" $ \(_, b) -> do
+      b `shouldBe` "154517692795352"

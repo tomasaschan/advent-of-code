@@ -24,6 +24,8 @@ library:
   source-dirs: src
   dependencies:
   - helpers
+  - containers
+  - mtl
 
 executables:
   dec21-run:

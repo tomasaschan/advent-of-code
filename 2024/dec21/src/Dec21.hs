@@ -3,20 +3,44 @@ module Dec21
   )
 where
 
+import Control.Monad.State.Strict (State, evalState, gets, modify)
+import qualified Data.Map as Map (insert, lookup)
+import Data.Map.Strict (Map)
+
 solve :: String -> (String, String)
 solve input = (a, b)
   where
-    a = show . sum . fmap complexity $ parse input
-    b = ""
+    a = show . sum . fmap (complexity 2) $ parse input
+    b = show . sum . fmap (complexity 25) $ parse input
 
-complexity :: [Numeric] -> Int
-complexity code =
-  let shortestSequence = dial code
+type Cache = Map (Int, [Directional]) Int
+
+complexity :: Int -> [Numeric] -> Int
+complexity robots code =
+  let steps = dial robots code
       numericPart = read . pretty . filter (/= NA) $ code :: Int
-   in length shortestSequence * numericPart
+   in steps * numericPart
 
-dial :: [Numeric] -> [Directional]
-dial = dialD . dialD . dialN
+dial :: Int -> [Numeric] -> Int
+dial robots = flip evalState mempty . dial' robots . parts . dialN
+  where
+    dial' :: Int -> [[Directional]] -> State Cache Int
+    dial' n _ | n < 0 || n > robots = error "infinite recursion prevented"
+    dial' 1 code = dial'' 1 code $ return . length
+    dial' n code = dial'' n code $ dial' (n - 1) . parts
+
+    dial'' :: Int -> [[Directional]] -> ([Directional] -> State Cache Int) -> State Cache Int
+    dial'' _ [] _ = return 0
+    dial'' n (part : rest) f = do
+      cached <- gets (Map.lookup (n, part))
+      rest' <- dial'' n rest f
+      case cached of
+        Just steps -> return $ steps + rest'
+        Nothing -> do
+          let ps = dialD part
+          next <- f ps
+          modify (Map.insert (n, part) next)
+          return $ next + rest'
 
 dialN :: [Numeric] -> [Directional]
 dialN = dialN' NA
@@ -30,8 +54,15 @@ dialD = dialD' DA
     dialD' _ [] = []
     dialD' current (c : code) = god current c ++ (DA : dialD' c code)
 
+parts :: [Directional] -> [[Directional]]
+parts = parts' [] []
+  where
+    parts' all' acc [] = reverse $ acc : all'
+    parts' all' acc (DA : code) = parts' (reverse (DA : acc) : all') [] code
+    parts' all' acc (c : code) = parts' all' (c : acc) code
+
 data Directional = L | R | U | D | DA
-  deriving (Eq)
+  deriving (Eq, Ord)
 
 instance Show Directional where
   show L = "<"
@@ -71,7 +102,7 @@ god DA D = [L, D]
 god DA R = [D]
 
 data Numeric = Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | NA
-  deriving (Eq, Enum)
+  deriving (Eq, Enum, Ord)
 
 instance Show Numeric where
   show NA = "A"
