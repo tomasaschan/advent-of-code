@@ -24,6 +24,7 @@ library:
   source-dirs: src
   dependencies:
   - helpers
+  - containers
 
 executables:
   dec22-run:

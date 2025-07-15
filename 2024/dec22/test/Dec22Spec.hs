@@ -6,10 +6,11 @@ import Test.Hspec
 
 spec :: Spec
 spec = describe "Dec 22" $ do
-  describeInput "example" "22-example.txt" solve $ do
+  describeInput "example a" "22-example-a.txt" solve $ do
     it "should solve a" $ \(a, _) -> do
       a `shouldBe` "37327623"
 
+  describeInput "example b" "22-example-b.txt" solve $ do
     it "should solve b" $ \(_, b) -> do
       b `shouldBe` "23"
 
@@ -17,31 +18,27 @@ spec = describe "Dec 22" $ do
     it "should solve a" $ \(a, _) -> do
       a `shouldBe` "12664695565"
 
-  describe "fundamental ops" $ do
-    it "mix" $ do
-      mix 42 15 `shouldBe` 37
+    it "should solve b" $ \(_, b) -> do
+      b `shouldBe` "1444"
 
+  describe "fundamental ops" $ do
     it "prune" $ do
       prune 100000000 `shouldBe` 16113920
 
-    describe "evolve" $ do
-      let examples =
-            [ 123,
-              15887950,
-              16495136,
-              527345,
-              704524,
-              1553684,
-              12683156,
-              11100544,
-              12249484,
-              7753432,
-              5908254
-            ]
-
-      let pairs = zip examples (drop 1 examples)
-
-      mapM_ (\(n, n') -> it ("evolve " ++ show n) $ evolve n `shouldBe` n') pairs
+    it "evolve" $ do
+      take 11 (iterate evolve 123)
+        `shouldBe` [ 123,
+                     15887950,
+                     16495136,
+                     527345,
+                     704524,
+                     1553684,
+                     12683156,
+                     11100544,
+                     12249484,
+                     7753432,
+                     5908254
+                   ]
 
     describe "price" $ do
       it "price of 123" $ do
