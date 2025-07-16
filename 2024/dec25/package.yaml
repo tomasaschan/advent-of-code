@@ -1,0 +1,56 @@
+name:                dec25
+version:             0.1.0.0
+github:              "tomasaschan/advent-of-code"
+license:             BSD-3-Clause
+author:              "Tomas Aschan"
+maintainer:          "1550920+tomasaschan@users.noreply.github.com"
+copyright:           "Tomas Aschan"
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+  dependencies:
+  - helpers
+  - parsec
+
+executables:
+  dec25-run:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - dec25
+    - helpers
+
+tests:
+  dec25-tests:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - dec25
+    - helpers
+    - test-helpers
+    - hspec
+
+default-extensions:
+- OverloadedStrings
